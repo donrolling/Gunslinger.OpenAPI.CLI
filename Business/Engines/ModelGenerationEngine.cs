@@ -4,7 +4,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Gunslinger.OpenAPI.CLI.Engines
+namespace Business.Engines
 {
 	public class ModelGenerationEngine : IModelGenerationEngine
 	{
@@ -17,10 +17,9 @@ namespace Gunslinger.OpenAPI.CLI.Engines
 			_logger = logger;
 		}
 
-		public async Task<OperationResult> GenerateModels(GenerationContext context, Template template)
+		public Task<OperationResult> GenerateModelsAsync(OpenAPIData openAPIData, GenerationContext context, Template template)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
-
 	}
 }

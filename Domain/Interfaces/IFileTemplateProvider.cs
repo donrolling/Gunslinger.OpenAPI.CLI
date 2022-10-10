@@ -2,7 +2,7 @@
 
 namespace Domain.Interfaces
 {
-	public interface IFileProvider
+	public interface IFileTemplateProvider
 	{
 		string Get(GenerationContext context, string filename);
 

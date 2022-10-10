@@ -6,6 +6,7 @@ namespace Domain.Configuration
 	{
 		[Required]
 		public string Location { get; set; }
+
 		[Required]
 		public string Name { get; set; }
 	}

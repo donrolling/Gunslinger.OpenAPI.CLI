@@ -157,20 +157,20 @@ namespace Utilities.IO
 		/// <param name="filename">Filename, duh</param>
 		/// <param name="subDirectory">SubDirectory within the source assembly.</param>
 		/// <returns></returns>
-		public static string ReadTextFile<T>(string filename, string subDirectory) where T : class
+		public static async Task<string> ReadTextFileAsync<T>(string filename, string subDirectory) where T : class
 		{
 			var path = Path.Combine(GetBasePath<T>(), subDirectory, filename);
-			return ReadTextFile(path);
+			return await ReadAllTextAsync(path);
 		}
 
-		public static string ReadTextFile(string filePath)
+		public static async Task<string> ReadAllTextAsync(string filePath)
 		{
 			if (filePath.Contains(":\\"))
 			{
-				return File.ReadAllText(filePath);
+				return await File.ReadAllTextAsync(filePath);
 			}
 			var path = string.Concat(GetBasePath<FileUtility>(), filePath);
-			return File.ReadAllText(path);
+			return await File.ReadAllTextAsync(path);
 		}
 
 		/// <summary>

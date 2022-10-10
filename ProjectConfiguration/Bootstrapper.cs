@@ -1,4 +1,9 @@
-﻿using Domain.Configuration;
+﻿using Business.Engines;
+using Business.Factories;
+using Business.Managers;
+using Business.Providers;
+using Domain.Configuration;
+using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,10 +28,18 @@ namespace ProjectConfiguration
 				{
 					services.AddConfiguration<AppSettings>(hostContext, nameof(AppSettings));
 					services.AddHttpClient();
+
+					// add services
+					services.AddTransient<IContextFactory, ContextFactory>();
+					services.AddTransient<IFileTemplateProvider, FileTemplateProvider>();
+					services.AddTransient<IGenerationEngine, GenerationEngine>();
+					services.AddTransient<IGenerationManager, GenerationManager>();
+					services.AddTransient<IModelGenerationEngine, ModelGenerationEngine>();
+					services.AddTransient<IPathGenerationEngine, PathGenerationEngine>();
+					//services.AddTransient<IOpenApiDataProvider, OpenApiDataProvider>();
 				})
 				.UseSerilog((hostContext, services, loggerConfiguration) =>
 				{
-					var appSettings = hostContext.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
 					var logPath = Path.Combine(AppContext.BaseDirectory, "Logs/log.txt").Replace("\\", "/");
 					loggerConfiguration
 						.ReadFrom.Configuration(hostContext.Configuration)

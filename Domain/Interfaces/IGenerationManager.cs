@@ -5,10 +5,10 @@ namespace Domain.Interfaces
 {
 	public interface IGenerationEngine
 	{
-		Task<OperationResult> GenerateModels(GenerationContext context, Template template);
+		Task<OperationResult> GenerateModelsAsync(GenerationContext context, Template template);
 
-		Task<OperationResult> GeneratePaths(GenerationContext context, Template template);
+		Task<OperationResult> GeneratePathsAsync(GenerationContext context, Template template);
 
-		Task<OperationResult> GenerateSetup(GenerationContext context, Template template);
+		Task<OperationResult> GenerateSetupAsync(GenerationContext context, Template template);
 	}
 }

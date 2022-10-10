@@ -46,7 +46,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ProjectConfiguration\ProjectConfiguration.csproj" />
-	  <ProjectReference Include="..\Utilities\Utilities.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

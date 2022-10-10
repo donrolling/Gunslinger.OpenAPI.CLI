@@ -5,6 +5,6 @@ namespace Domain.Interfaces
 {
 	public interface IModelGenerationEngine
 	{
-		Task<OperationResult> GenerateModels(GenerationContext context, Template template);
+		Task<OperationResult> GenerateModelsAsync(OpenAPIData openAPIData, GenerationContext context, Template template);
 	}
 }

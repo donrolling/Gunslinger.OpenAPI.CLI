@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Utilities.Extensions;
 
-namespace Gunslinger.OpenAPI.CLI.Factories
+namespace Business.Factories
 {
 	public class NameFactory
 	{

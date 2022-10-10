@@ -4,19 +4,19 @@ using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Utilities.IO;
-using IFileProvider = Domain.Interfaces.IFileProvider;
+using IFileTemplateProvider = Domain.Interfaces.IFileTemplateProvider;
 
-namespace Gunslinger.OpenAPI.CLI.Factories
+namespace Business.Factories
 {
 	public class ContextFactory : IContextFactory
 	{
 		private readonly AppSettings _appSettings;
-		private readonly IFileProvider _fileProvider;
+		private readonly IFileTemplateProvider _fileProvider;
 		private readonly ILogger<ContextFactory> _logger;
 
 		public ContextFactory(
 			IOptions<AppSettings> appSettings,
-			IFileProvider fileProvider,
+			IFileTemplateProvider fileProvider,
 			ILogger<ContextFactory> logger
 		)
 		{

@@ -1,12 +1,12 @@
-﻿using Domain;
+﻿using Business.Engines;
+using Domain;
 using Domain.Configuration;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
-using Gunslinger.OpenAPI.CLI.Engines;
 using Microsoft.Extensions.Logging;
 
-namespace Gunslinger.OpenAPI.CLI.Managers
+namespace Business.Managers
 {
 	public class GenerationManager : IGenerationManager
 	{
@@ -18,7 +18,6 @@ namespace Gunslinger.OpenAPI.CLI.Managers
 
 		public GenerationManager(
 			IContextFactory contextFactory,
-			IOpenApiDataProvider openApiDataProvider,
 			IGenerationEngine generationEngine,
 			ILogger<GenerationEngine> logger
 		)
@@ -58,7 +57,7 @@ namespace Gunslinger.OpenAPI.CLI.Managers
 			switch (template.Type)
 			{
 				case TemplateType.Model:
-					var modelGenerationResult = await _generationEngine.GenerateModels(Context, template);
+					var modelGenerationResult = await _generationEngine.GenerateModelsAsync(Context, template);
 					if (modelGenerationResult.Failed)
 					{
 						errors.Add(modelGenerationResult);
@@ -66,7 +65,7 @@ namespace Gunslinger.OpenAPI.CLI.Managers
 					break;
 
 				case TemplateType.Path:
-					var pathGenerationResult = await _generationEngine.GeneratePaths(Context, template);
+					var pathGenerationResult = await _generationEngine.GeneratePathsAsync(Context, template);
 					if (pathGenerationResult.Failed)
 					{
 						errors.Add(pathGenerationResult);
@@ -75,7 +74,7 @@ namespace Gunslinger.OpenAPI.CLI.Managers
 
 				case TemplateType.Setup:
 				default:
-					var setupGenerationResult = await _generationEngine.GenerateSetup(Context, template);
+					var setupGenerationResult = await _generationEngine.GenerateSetupAsync(Context, template);
 					if (setupGenerationResult.Failed)
 					{
 						errors.Add(setupGenerationResult);

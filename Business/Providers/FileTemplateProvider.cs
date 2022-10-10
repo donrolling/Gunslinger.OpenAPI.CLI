@@ -2,9 +2,9 @@
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Gunslinger.OpenAPI.CLI.Providers
+namespace Business.Providers
 {
-	public class FileTemplateProvider : IFileProvider
+	public class FileTemplateProvider : IFileTemplateProvider
 	{
 		private readonly ILogger<FileTemplateProvider> _logger;
 
