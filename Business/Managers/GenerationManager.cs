@@ -7,7 +7,6 @@ using Domain.Interfaces;
 using Domain.Models;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 using Path = System.IO.Path;
 
 namespace Business.Managers
@@ -18,9 +17,9 @@ namespace Business.Managers
 
 		private readonly IContextFactory _contextFactory;
 		private readonly IFileCreationEngine _fileCreationEngine;
+		private readonly ILogger<OpenApiParsingEngine> _logger;
 		private readonly IOpenApiParsingEngine _openApiParsingEngine;
 		private readonly IRenderEngine _renderEngine;
-		private readonly ILogger<OpenApiParsingEngine> _logger;
 
 		public GenerationManager(
 			IContextFactory contextFactory,
@@ -67,6 +66,20 @@ namespace Business.Managers
 			return OperationResult.Ok();
 		}
 
+		private void AddImportsAndNamespacesToResultModels(OpenApiResult openApiResult, Template template)
+		{
+			foreach (var model in openApiResult.Models)
+			{
+				model.Namespace = template.Namespace;
+				model.Imports = template.Imports;
+			}
+			foreach (var path in openApiResult.Paths)
+			{
+				path.Namespace = template.Namespace;
+				path.Imports = template.Imports;
+			}
+		}
+
 		private async Task GenerateFilesAsync(Template template, OpenApiResult openApiResult, List<OperationResult> errors)
 		{
 			switch (template.Type)
@@ -93,12 +106,33 @@ namespace Business.Managers
 
 		private async Task<OperationResult> GenerateManyAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
+			AddImportsAndNamespacesToResultModels(openApiResult, template);
+			switch (template.Type)
+			{
+				case TemplateType.Path:
+					return await GeneratePathsAsync(context, template, openApiResult);
+
+				case TemplateType.Model:
+					return await GenerateModelsAsync(context, template, openApiResult);
+
+				case TemplateType.Setup:
+				default:
+					return OperationResult.Fail($"Type: {template.Type} should not have been in the GenerateManyAsync method.");
+			}
+		}
+
+		private async Task<OperationResult> GenerateModelsAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		{
 			var errors = new List<string>();
 			foreach (var model in openApiResult.Models)
 			{
 				var outputRelativePath = template.OutputRelativePath;
 				var path = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", model.Name.Value);
-				var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+				var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+				if (prepareDirectoryResult.Failed)
+				{
+					return prepareDirectoryResult;
+				}
 				// don't output the excluded types
 				if (template.ExcludeTheseTypes.Contains(model.Name.Value))
 				{
@@ -106,8 +140,12 @@ namespace Business.Managers
 				}
 				try
 				{
-					var output = _renderEngine.Render(template.TemplateText, model);
-					var result = await _fileCreationEngine.CreateFileAsync(path, output);
+					var outputResult = _renderEngine.Render(template.TemplateText, model);
+					if (outputResult.Failed)
+					{
+						return outputResult;
+					}
+					var result = await _fileCreationEngine.CreateFileAsync(path, outputResult.Result);
 					if (result.Failed)
 					{
 						var message = $"EntityName: {model.Name.Value}\r\nTemplateName: {template.Name} - {result.Message}";
@@ -134,7 +172,7 @@ namespace Business.Managers
 			var outputRelativePath = template.OutputRelativePath;
 			var path = $"{context.RootPath}\\{outputRelativePath}";
 			// don't need to perform 'entityName' replacement on single-file generation, because it doesn't make sense.
-			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);			
+			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 			var fileName = Path.GetFileName(path);
 			var modelGroup = new ModelGroup
 			{
@@ -143,8 +181,58 @@ namespace Business.Managers
 				Namespace = template.Namespace,
 				Imports = template.Imports
 			};
-			var output = _renderEngine.Render(template.TemplateText, modelGroup);
-			return await _fileCreationEngine.CreateFileAsync(path, output);
+			var outputResult = _renderEngine.Render(template.TemplateText, modelGroup);
+			if (outputResult.Failed)
+			{
+				return outputResult;
+			}
+			return await _fileCreationEngine.CreateFileAsync(path, outputResult.Result);
+		}
+
+		private async Task<OperationResult> GeneratePathsAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		{
+			var errors = new List<string>();
+			foreach (var path in openApiResult.Paths)
+			{
+				var outputRelativePath = template.OutputRelativePath;
+				var outputPath = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", path.Name.Value);
+				var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(outputPath, template.DeleteAllItemsInOutputDirectory);
+				if (prepareDirectoryResult.Failed)
+				{
+					return prepareDirectoryResult;
+				}
+				// don't output the excluded types
+				if (template.ExcludeTheseTypes.Contains(path.Name.Value))
+				{
+					continue;
+				}
+				try
+				{
+					var outputResult = _renderEngine.Render(template.TemplateText, path);
+					if (outputResult.Failed)
+					{
+						return outputResult;
+					}
+					var result = await _fileCreationEngine.CreateFileAsync(outputPath, outputResult.Result);
+					if (result.Failed)
+					{
+						var message = $"EntityName: {path.Name.Value}\r\nTemplateName: {template.Name} - {result.Message}";
+						errors.Add(message);
+					}
+				}
+				catch (Exception ex)
+				{
+					var message = $"EntityName: {path.Name.Value}\r\nTemplateName: {template.Name} - {ex.Message}";
+					errors.Add(message);
+				}
+			}
+			if (errors.Any())
+			{
+				var errorMessages = string.Join(Environment.NewLine, errors);
+				var message = $"Partial or total generation failure: {errorMessages}";
+				return OperationResult.Fail(message);
+			}
+			return OperationResult.Ok();
 		}
 	}
 }

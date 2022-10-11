@@ -2,8 +2,10 @@
 
 namespace Domain.Models
 {
-	public class Model : INamed
+	public class Model : IRenderable
 	{
+		public List<string> Imports { get; set; }
+
 		public Name Name { get; set; }
 
 		public string Namespace { get; set; }

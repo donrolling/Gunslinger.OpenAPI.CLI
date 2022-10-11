@@ -43,8 +43,15 @@ I think install works differently if using a non-local nupkg. More on that when 
 **Uninstall the tool**
 `dotnet tool uninstall GunslingerCLI -g`
 
-# Using Docker for testing
+## Using Docker for testing
 
+Build from solution root:
+`docker build -t drolling/gunslinger-api-tests:latest -f TestApiProject/Dockerfile .`
+
+Push:
+`docker push drolling/gunslinger-api-tests:latest`
+
+Run:
 `docker run -p 8080:80 -d drolling/gunslinger-api-tests:latest`
 
 [navigate to](http://localhost:8080/swagger/v1/swagger.json)

@@ -91,21 +91,24 @@ namespace Business.Engines
 			foreach (var pathNode in pathsNode.Value.EnumerateObject())
 			{
 				var path = new Path();
+				var pathName = pathNode.Name.Replace("/api/", "").Replace("/", "_");
+				path.Name = NameFactory.Create(pathName);
 				path.Route = pathNode.Name;
 				var jsonVerbs = pathNode.Value.EnumerateObject();
 				foreach (var jsonVerb in jsonVerbs)
 				{
 					var verb = new Verb();
-					verb.Name = jsonVerb.Name;
+					verb.Name = NameFactory.Create(jsonVerb.Name);
 					var jsonParameters = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("parameters", Comparison));
 					if (jsonParameters.Value.ValueKind == JsonValueKind.Undefined)
 					{
-						AddRequestAndResponseObjects(jsonVerb, verb, models);
+						AddRequestObjects(jsonVerb, verb, models);
 					}
 					else
 					{
 						AddParameters(verb, jsonParameters);
 					}
+					AddResponseObjects(jsonVerb, verb, models);
 					path.Verbs.Add(verb);
 				}
 				result.Add(path);
@@ -126,14 +129,14 @@ namespace Business.Engines
 				var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
 				// this won't explode if it is null
 				var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-				property.Type = string.IsNullOrWhiteSpace(typeFormat) ? type : typeFormat;
+				property.Type = property.Type = TypeFactory.Create(type, typeFormat);
 				var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
 				property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
 				verb.Parameters.Add(property);
 			}
 		}
 
-		private void AddRequestAndResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
+		private void AddRequestObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
 		{
 			var requestBody = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("requestBody", Comparison));
 			if (requestBody.Value.ValueKind == JsonValueKind.Undefined)
@@ -154,7 +157,10 @@ namespace Business.Engines
 				var requestObjectName = requestObject.Split('/').Last();
 				verb.RequestObject = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison));
 			}
+		}
 
+		private void AddResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
+		{
 			var responses = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("responses", Comparison));
 			if (responses.Value.ValueKind == JsonValueKind.Undefined)
 			{
@@ -179,7 +185,7 @@ namespace Business.Engines
 			{
 				return;
 			}
-			var responseObjectString = twoHundredContentResponse.Value.ToString();
+			var responseObjectString = responseObject.Value.ToString();
 			if (!string.IsNullOrEmpty(responseObjectString))
 			{
 				var responseObjectName = responseObjectString.Split('/').Last();

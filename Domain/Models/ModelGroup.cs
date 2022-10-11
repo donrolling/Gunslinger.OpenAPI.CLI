@@ -2,7 +2,7 @@
 
 namespace Domain.Models
 {
-	public class ModelGroup : INamed
+	public class ModelGroup : IRenderable
 	{
 		public OpenApiResult Data { get; set; }
 		

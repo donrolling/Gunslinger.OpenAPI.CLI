@@ -1,8 +1,7 @@
-﻿using Domain.Interfaces;
-using Domain.Models;
+﻿using Domain;
+using Domain.Interfaces;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
-using Path = Domain.Models.Path;
 
 namespace Engine.Engines
 {
@@ -20,34 +19,20 @@ namespace Engine.Engines
 			_logger = logger;
 		}
 
-		public string Render(string template, Model model)
-		{
-			return Render<Model>(template, model);
-		}
-
-		public string Render(string template, ModelGroup modelGroup)
-		{
-			return Render<ModelGroup>(template, modelGroup);
-		}
-
-		public string Render(string template, Path path)
-		{
-			return Render<Path>(template, path);
-		}
-
-		private string Render<T>(string template, T obj) where T : INamed
+		public OperationResult<string> Render(string template, IRenderable item)
 		{
 			try
 			{
+				var handlebarsTemplate = Handlebars.Compile(template);
+				var result = handlebarsTemplate(item);
+				return OperationResult.Ok(result);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError("HandlebarsRenderEngine had a problem rendering.", ex);
-				throw;
+				var message = $"HandlebarsRenderEngine had a problem rendering.\r\nException: {ex.Message}";
+				_logger.LogError(message);
+				return OperationResult.Ok(message);
 			}
-			var handlebarsTemplate = Handlebars.Compile(template);
-			var result = handlebarsTemplate(obj);
-			return result;
 		}
 
 		private static void RegisterHelpers()
@@ -103,6 +88,18 @@ namespace Engine.Engines
 				else
 				{
 					options.Inverse(writer, (object)context);
+				}
+			});
+			Handlebars.RegisterHelper("boolInverseCond", (writer, options, context, arguments) =>
+			{
+				var arguments0 = arguments[0];
+				if ((bool)arguments0)
+				{
+					options.Inverse(writer, (object)context);
+				}
+				else
+				{
+					options.Template(writer, (object)context);
 				}
 			});
 		}

@@ -25,6 +25,10 @@ namespace Business.Engines
 			_alreadyCleanedDirectories.Add(directory);
 
 			var di = new DirectoryInfo(directory);
+			if (!di.Exists)
+			{
+				return OperationResult.Ok();
+			}
 			try
 			{
 				foreach (var file in di.GetFiles())

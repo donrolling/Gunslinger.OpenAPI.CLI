@@ -24,13 +24,14 @@
 		},
 		{
 			"Type": "Path",
-			"Name": "Services",
-			"Namespace": "Services",
-			"InputRelativePath": "Service.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Services\\{entityName}.cs",
+			"Name": "Routes",
+			"Namespace": "Routes",
+			"InputRelativePath": "Route.txt",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Routes\\{entityName}.cs",
 			"Language": "csharp",
 			"DataProviderName": "Swagger",
 			"Imports": [
+				"Models"
 			]
 		}
 	]
