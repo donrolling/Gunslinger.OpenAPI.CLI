@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IntegrationTestProject.Models
+namespace Tests.Models
 {
 	public class AppSettings
 	{

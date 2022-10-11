@@ -5,6 +5,6 @@ namespace Domain.Interfaces
 {
 	public interface ISetupGenerationEngine
 	{
-		Task<OperationResult> GenerateSetupAsync(OpenAPIData openAPIData, GenerationContext context, Template template);
+		OperationResult GenerateSetup(OpenAPIData openAPIData, GenerationContext context, Template template);
 	}
 }

@@ -32,11 +32,18 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Gunslinger.OpenAPI.CLI\Gunslinger.OpenAPI.CLI.csproj" />
+	  <ProjectReference Include="..\ProjectConfiguration\ProjectConfiguration.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\gunslinger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\swagger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 </Project>

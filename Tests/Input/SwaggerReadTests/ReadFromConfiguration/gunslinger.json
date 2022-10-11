@@ -1,0 +1,37 @@
+{
+	"TemplateDirectory": "Templates",
+	"ExcludeTheseEntities": [],
+	"ExcludeTheseTemplates": [],
+	"IncludeTheseEntitiesOnly": [],
+	"IncludeTheseTemplatesOnly": [],
+	"DataProviders": [
+		{
+			"Name": "Swagger",
+			"Location": "http://localhost:8080/swagger/v1/swagger.json"
+		}
+	],
+	"Templates": [
+		{
+			"Type": "Model",
+			"Name": "Models",
+			"Namespace": "Models",
+			"InputRelativePath": "Model.txt",
+			"OutputRelativePath": "SwaggerReadTests\\Output\\Models\\{entityName}.cs",
+			"Language": "csharp",
+			"DataProviderName": "Swagger",
+			"Imports": [
+			]
+		},
+		{
+			"Type": "Path",
+			"Name": "Services",
+			"Namespace": "Services",
+			"InputRelativePath": "Service.txt",
+			"OutputRelativePath": "SwaggerReadTests\\Output\\Services\\{entityName}.cs",
+			"Language": "csharp",
+			"DataProviderName": "Swagger",
+			"Imports": [
+			]
+		}
+	]
+}

@@ -1,8 +1,9 @@
 ﻿using Domain;
-using Newtonsoft.Json;
-using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Utilities.IO
 {
@@ -103,7 +104,14 @@ namespace Utilities.IO
 				return OperationResult.Fail<T>("Configuration not found.");
 			}
 			var fileContents = File.ReadAllText(path);
-			var result = JsonConvert.DeserializeObject<T>(fileContents);
+			var options = new JsonSerializerOptions
+			{
+				WriteIndented = true,
+				Converters = {
+					new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+				}
+			};
+			var result = JsonSerializer.Deserialize<T>(fileContents, options);
 			return OperationResult.Ok(result);
 		}
 

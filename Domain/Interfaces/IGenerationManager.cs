@@ -1,14 +1,11 @@
 ﻿using Domain.Configuration;
-using Domain.Models;
 
 namespace Domain.Interfaces
 {
-	public interface IGenerationEngine
+	public interface IGenerationManager
 	{
-		Task<OperationResult> GenerateModelsAsync(GenerationContext context, Template template);
+		GenerationContext Context { get; }
 
-		Task<OperationResult> GeneratePathsAsync(GenerationContext context, Template template);
-
-		Task<OperationResult> GenerateSetupAsync(GenerationContext context, Template template);
+		Task<OperationResult> GenerateAsync(CommandSettings commandSettings);
 	}
 }

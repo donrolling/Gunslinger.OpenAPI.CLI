@@ -18,9 +18,6 @@ namespace Domain.Configuration
 
 		public List<string> IncludeTheseTemplatesOnly { get; set; } = new List<string>();
 
-		[Required]
-		public string OutputDirectory { get; set; }
-
 		public string RootPath { get; set; }
 
 		[Required]

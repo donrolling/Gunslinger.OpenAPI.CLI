@@ -16,13 +16,13 @@ namespace Domain.Models
 		public List<string> ExcludeTheseTypes { get; set; } = new List<string>();
 
 		public List<string> Imports { get; set; } = new List<string>();
-		
+
 		/// <summary>
 		/// This is the relative path of the template from the template directory root.
 		/// </summary>
 		[Required]
 		public string InputRelativePath { get; set; }
-		
+
 		[Required]
 		public ProgrammingLanguage Language { get; set; }
 
@@ -44,7 +44,7 @@ namespace Domain.Models
 		/// </summary>
 		[Required]
 		public string OutputRelativePath { get; set; }
-		
+
 		public string TemplateText { get; set; }
 
 		/// <summary>

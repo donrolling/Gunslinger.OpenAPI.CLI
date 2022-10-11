@@ -10,7 +10,6 @@
 		public OperationResult()
 		{ }
 
-
 		public OperationResult(bool success, string message, T result)
 		{
 			Success = success;

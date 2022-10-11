@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProjectConfiguration.Extensions;
 using Serilog;
-using System.Net.Http.Headers;
 
 namespace ProjectConfiguration
 {
@@ -32,11 +31,11 @@ namespace ProjectConfiguration
 					// add services
 					services.AddTransient<IContextFactory, ContextFactory>();
 					services.AddTransient<IFileTemplateProvider, FileTemplateProvider>();
-					services.AddTransient<IGenerationEngine, GenerationEngine>();
+					services.AddTransient<IOpenApiParsingEngine, OpenApiParsingEngine>();
 					services.AddTransient<IGenerationManager, GenerationManager>();
 					services.AddTransient<IModelGenerationEngine, ModelGenerationEngine>();
 					services.AddTransient<IPathGenerationEngine, PathGenerationEngine>();
-					//services.AddTransient<IOpenApiDataProvider, OpenApiDataProvider>();
+					services.AddTransient<ISetupGenerationEngine, SetupGenerationEngine>();
 				})
 				.UseSerilog((hostContext, services, loggerConfiguration) =>
 				{

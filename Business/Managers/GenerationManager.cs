@@ -13,17 +13,17 @@ namespace Business.Managers
 		public GenerationContext Context { get; private set; }
 
 		private readonly IContextFactory _contextFactory;
-		private readonly IGenerationEngine _generationEngine;
-		private readonly ILogger<GenerationEngine> _logger;
+		private readonly IOpenApiParsingEngine _openApiParsingEngine;
+		private readonly ILogger<OpenApiParsingEngine> _logger;
 
 		public GenerationManager(
 			IContextFactory contextFactory,
-			IGenerationEngine generationEngine,
-			ILogger<GenerationEngine> logger
+			IOpenApiParsingEngine generationEngine,
+			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_contextFactory = contextFactory;
-			_generationEngine = generationEngine;
+			_openApiParsingEngine = generationEngine;
 			_logger = logger;
 		}
 
@@ -37,10 +37,15 @@ namespace Business.Managers
 			Context = contextResult.Result;
 
 			var errors = new List<OperationResult>();
-
-			foreach (var template in Context.Templates)
+			var dataProviderNames = Context.Templates.Select(a => a.DataProviderName).Distinct();
+			foreach (var dataProviderName in dataProviderNames)
 			{
-				await GenerateFiles(template, errors);
+				var openApiResult = await _openApiParsingEngine.ParseOpenApiAsync(Context, dataProviderName);
+				var templates = Context.Templates.Where(a => a.DataProviderName.Equals(dataProviderName, StringComparison.InvariantCultureIgnoreCase));
+				foreach (var template in templates)
+				{
+					await GenerateFiles(template, openApiResult, errors);
+				}
 			}
 
 			// done
@@ -52,12 +57,12 @@ namespace Business.Managers
 			return OperationResult.Ok();
 		}
 
-		private async Task GenerateFiles(Template template, List<OperationResult> errors)
+		private async Task GenerateFiles(Template template, OperationResult<OpenApiResult> openApiResult, List<OperationResult> errors)
 		{
 			switch (template.Type)
 			{
 				case TemplateType.Model:
-					var modelGenerationResult = await _generationEngine.GenerateModelsAsync(Context, template);
+					var modelGenerationResult =
 					if (modelGenerationResult.Failed)
 					{
 						errors.Add(modelGenerationResult);
@@ -65,7 +70,7 @@ namespace Business.Managers
 					break;
 
 				case TemplateType.Path:
-					var pathGenerationResult = await _generationEngine.GeneratePathsAsync(Context, template);
+					var pathGenerationResult = await _openApiParsingEngine.GeneratePathsAsync(Context, template);
 					if (pathGenerationResult.Failed)
 					{
 						errors.Add(pathGenerationResult);
@@ -74,7 +79,7 @@ namespace Business.Managers
 
 				case TemplateType.Setup:
 				default:
-					var setupGenerationResult = await _generationEngine.GenerateSetupAsync(Context, template);
+					var setupGenerationResult = await _openApiParsingEngine.GenerateSetupAsync(Context, template);
 					if (setupGenerationResult.Failed)
 					{
 						errors.Add(setupGenerationResult);

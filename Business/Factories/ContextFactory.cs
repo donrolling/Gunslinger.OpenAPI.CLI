@@ -27,18 +27,18 @@ namespace Business.Factories
 
 		public OperationResult<GenerationContext> Create(CommandSettings commandSettings)
 		{
-			var configPath = GetConfigurationPath(commandSettings);
-			var generationContextReadResult = FileUtility.ReadFileAsType<GenerationContext>(configPath);
+			var configFilePath = GetConfigurationPath(commandSettings);
+			var configPath = Path.GetDirectoryName(configFilePath);
+			var generationContextReadResult = FileUtility.ReadFileAsType<GenerationContext>(configFilePath);
 			if (generationContextReadResult.Failed)
 			{
 				// log failure and stop
-				var msg = $"Could not find configuration file. Searched here: {configPath}.{Environment.NewLine}Type 'gs --help' for help.";
+				var msg = $"Could not find configuration file. Searched here: {configFilePath}.{Environment.NewLine}Type 'gs --help' for help.";
 				return OperationResult.Fail<GenerationContext>(msg);
 			}
 			var generationContext = generationContextReadResult.Result;
-			generationContext.OutputDirectory = FixPath(commandSettings.RootPath, generationContext.OutputDirectory);
 			generationContext.RootPath = commandSettings.RootPath;
-			generationContext.TemplateDirectory = FixPath(commandSettings.RootPath, generationContext.TemplateDirectory);
+			generationContext.TemplateDirectory = FixPath(configPath, generationContext.TemplateDirectory);
 
 			ReadTemplateText(generationContext);
 			return OperationResult.Ok(generationContext);
@@ -53,11 +53,9 @@ namespace Business.Factories
 				var text = _fileProvider.Get(templatePath);
 				if (string.IsNullOrEmpty(text))
 				{
-					throw new Exception($"Template was empty: {template.Name}");
+					throw new Exception($"Template was empty: {template.InputRelativePath}");
 				}
 				template.TemplateText = text;
-				// now add the template to the generation context
-				generationContext.Templates.Add(template);
 			}
 		}
 

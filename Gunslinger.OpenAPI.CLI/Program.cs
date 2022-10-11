@@ -4,9 +4,8 @@ using Domain.Configuration;
 using Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using ProjectConfiguration;
+using System.Text.Json;
 using Options = Domain.Configuration.Options;
 
 var configuration = Bootstrapper.GetHostConfiguration(AppDomain.CurrentDomain.BaseDirectory);
@@ -24,7 +23,7 @@ using (var scope = configuration.Host.Services.CreateScope())
 	}
 
 	var commandSettings = commandSettingsResult.Result;
-	var commandSettingsJson = JsonConvert.SerializeObject(commandSettings);
+	var commandSettingsJson = JsonSerializer.Serialize(commandSettings);
 	var configurationMessage = $"Command Settings:{commandSettingsJson}";
 	logger.LogInformation(configurationMessage);
 

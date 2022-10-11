@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace Utilities.Extensions
 {
@@ -156,13 +156,13 @@ namespace Utilities.Extensions
 			{
 				return;
 			}
-			var jsonSerializerSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
+			var serializerOptions = new JsonSerializerOptions { WriteIndented = true };
 			foreach (var arg in args)
 			{
 				if (arg == null) { continue; }
 				var type = arg.GetType();
 				var name = type.Name;
-				var json = JsonConvert.SerializeObject(arg, jsonSerializerSettings);
+				var json = JsonSerializer.Serialize(arg, serializerOptions);
 				sb.AppendLine($"\t{name}:\r\n\t{json}");
 			}
 		}
