@@ -16,6 +16,7 @@ namespace Business.Factories
 				LowerCamelCase = rgx.Replace(name.ToCamelCase(), ""),
 				PascalCase = rgx.Replace(name.ToPascalCase(), ""),
 				NameWithSpaces = name.UnCamelCase(),
+				UpperCase = name.ToUpper()
 			};
 		}
 	}

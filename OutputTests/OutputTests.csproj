@@ -9,10 +9,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Enterprise.Configuration" Version="1.0.5" />
 
 		<PackageReference Include="AutoFixture" Version="4.17.0" />
 		<PackageReference Include="coverlet.collector" Version="3.1.2" />
 
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
@@ -30,25 +32,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Gunslinger.OpenAPI.CLI\Gunslinger.OpenAPI.CLI.csproj" />
-	  <ProjectReference Include="..\ProjectConfiguration\ProjectConfiguration.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="Input\OutputTest\gunslinger.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Input\OutputTest\swagger.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\gunslinger.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\swagger.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Client\" />
 	</ItemGroup>
 </Project>

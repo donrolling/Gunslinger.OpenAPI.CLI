@@ -90,18 +90,6 @@ namespace Engine.Engines
 					options.Inverse(writer, (object)context);
 				}
 			});
-			Handlebars.RegisterHelper("boolInverseCond", (writer, options, context, arguments) =>
-			{
-				var arguments0 = arguments[0];
-				if ((bool)arguments0)
-				{
-					options.Inverse(writer, (object)context);
-				}
-				else
-				{
-					options.Template(writer, (object)context);
-				}
-			});
 		}
 	}
 }

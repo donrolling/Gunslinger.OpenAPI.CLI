@@ -1,4 +1,5 @@
 {
+	"OutputDirectory": "..\\..\\..\\..\\OutputTests\\Client\\",
 	"TemplateDirectory": "Templates",
 	"DataProviders": [
 		{
@@ -9,7 +10,7 @@
 	"Templates": [
 		{
 			"Type": "Setup",
-			"Name": "TestAPIClient",
+			"Name": "Client",
 			"Namespace": "Client",
 			"InputRelativePath": "Client.txt",
 			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\TestAPIClient.cs",
@@ -21,24 +22,10 @@
 		},
 		{
 			"Type": "Setup",
-			"Name": "ITestAPIClient",
+			"Name": "ClientInterface",
 			"Namespace": "Client",
 			"InputRelativePath": "ClientInterface.txt",
 			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\ITestAPIClient.cs",
-			"DeleteAllItemsInOutputDirectory": false,
-			"DataProviderName": "Swagger",
-			"Imports": [
-				"Models",
-				"Routes",
-				"System.Text"
-			]
-		},
-		{
-			"Type": "Setup",
-			"Name": "TestAPIClient",
-			"Namespace": "Configuration",
-			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -61,7 +48,7 @@
 			"Name": "Routes",
 			"Namespace": "Routes",
 			"InputRelativePath": "Route.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Routes\\{entityName}Route.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Routes\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Models"

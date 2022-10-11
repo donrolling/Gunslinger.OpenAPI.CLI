@@ -6,5 +6,6 @@
 		public string NameWithSpaces { get; set; }
 		public string LowerCamelCase { get; set; }
 		public string PascalCase { get; set; }
+		public string UpperCase { get; set; }
 	}
 }

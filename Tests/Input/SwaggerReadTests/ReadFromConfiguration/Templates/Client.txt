@@ -4,27 +4,115 @@ using {{.}};
 
 namespace {{Namespace}} 
 {
-    public class {{Name.Value}}Route
+    public class {{Name.PascalCase}} : I{{Name.PascalCase}}
     {
-        {{#Verbs}}
-        {{#if RequestObjectIsEmpty}}
+        private readonly string _baseUrl;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<{{Name.PascalCase}}> _logger;
+
+        public {{Name.PascalCase}}(string baseUrl, HttpClient httpClient, ILogger<{{Name.PascalCase}}> logger)
+        {
+            _baseUrl = baseUrl;
+            _httpClient = httpClient;
+            _logger = _logger;
+        }
+
+        private StringBuilder GetUrl(string route) 
+        {
+            var urlBuilder = new StringBuilder();
+            urlBuilder.Append(_baseUrl != null ? _baseUrl.TrimEnd('/') : "").Append(route);
+            return urlBuilder;
+        }
+
+        {{#Data ~}}        
+        {{#Paths ~}}
+        {{#Verbs ~}}
+        {{#if RequestObjectIsEmpty ~}}
         
         {{#if ResponseObjectIsEmpty}}
-        public async Task<Response> {{Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
+        {
+            var urlBuilder = GetUrl();
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                var content = await response_.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+					return OperationResult.Fail();                
+                }
+			}
+        }
         {{else}}
-        public async Task<{{ResponseObject.Name.PascalCase}}> {{Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
-        {{/if}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
+        {
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                var content = await response_.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+					return OperationResult.Fail();                
+                }
+			}
+        }
+        {{/if ~}}
 
-        {{else}}
+        {{else ~}}
 
         {{#if ResponseObjectIsEmpty}}
-        public async Task<Response> {{Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                var content = await response_.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+					return OperationResult.Fail();                
+                }
+			}
+        }
         {{else}}
-        public async Task<{{ResponseObject.Name.PascalCase}}> {{Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
-        {{/if}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                var content = await response_.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+					return OperationResult.Fail();                
+                }
+			}
+        }
+        {{/if ~}}
 
         {{/if}}
         
-        {{/Verbs}}
+        {{/Verbs ~}}
+        {{/Paths ~}}
+
+        {{/Data}}
     }
 }

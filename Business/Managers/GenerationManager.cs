@@ -95,7 +95,7 @@ namespace Business.Managers
 
 				case TemplateType.Setup:
 				default:
-					var setupGenerationResult = await GenerateOneAsync(Context, template, openApiResult);
+					var setupGenerationResult = await GenerateSetupAsync(Context, template, openApiResult);
 					if (setupGenerationResult.Failed)
 					{
 						errors.Add(setupGenerationResult);
@@ -167,16 +167,20 @@ namespace Business.Managers
 			return OperationResult.Ok();
 		}
 
-		private async Task<OperationResult> GenerateOneAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		private async Task<OperationResult> GenerateSetupAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
 			var outputRelativePath = template.OutputRelativePath;
 			var path = $"{context.RootPath}\\{outputRelativePath}";
+			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+			if (prepareDirectoryResult.Failed)
+			{
+				return prepareDirectoryResult;
+			}
 			// don't need to perform 'entityName' replacement on single-file generation, because it doesn't make sense.
-			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
-			var fileName = Path.GetFileName(path);
+			var fileName = Path.GetFileName(path).Replace(".cs", "");
 			var modelGroup = new ModelGroup
 			{
-				Name = NameFactory.Create(fileName),
+				Name = NameFactory.Create(template.Name),
 				Data = openApiResult,
 				Namespace = template.Namespace,
 				Imports = template.Imports
