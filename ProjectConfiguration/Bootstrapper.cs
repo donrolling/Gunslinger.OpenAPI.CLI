@@ -33,9 +33,7 @@ namespace ProjectConfiguration
 					services.AddTransient<IFileTemplateProvider, FileTemplateProvider>();
 					services.AddTransient<IOpenApiParsingEngine, OpenApiParsingEngine>();
 					services.AddTransient<IGenerationManager, GenerationManager>();
-					services.AddTransient<IModelGenerationEngine, ModelGenerationEngine>();
-					services.AddTransient<IPathGenerationEngine, PathGenerationEngine>();
-					services.AddTransient<ISetupGenerationEngine, SetupGenerationEngine>();
+					services.AddTransient<IFileCreationEngine, FileCreationEngine>();
 				})
 				.UseSerilog((hostContext, services, loggerConfiguration) =>
 				{

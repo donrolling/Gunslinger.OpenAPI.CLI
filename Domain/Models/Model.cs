@@ -1,6 +1,8 @@
-﻿namespace Domain.Models
+﻿using Domain.Interfaces;
+
+namespace Domain.Models
 {
-	public class Model
+	public class Model : INamed
 	{
 		public Name Name { get; set; }
 

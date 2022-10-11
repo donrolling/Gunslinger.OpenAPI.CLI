@@ -1,10 +1,13 @@
 ﻿using Business.Engines;
+using Business.Factories;
 using Domain;
 using Domain.Configuration;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
+using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
+using Path = System.IO.Path;
 
 namespace Business.Managers
 {
@@ -13,17 +16,23 @@ namespace Business.Managers
 		public GenerationContext Context { get; private set; }
 
 		private readonly IContextFactory _contextFactory;
+		private readonly IFileCreationEngine _fileCreationEngine;
 		private readonly IOpenApiParsingEngine _openApiParsingEngine;
+		private readonly IRenderEngine _renderEngine;
 		private readonly ILogger<OpenApiParsingEngine> _logger;
 
 		public GenerationManager(
 			IContextFactory contextFactory,
-			IOpenApiParsingEngine generationEngine,
+			IFileCreationEngine fileCreationEngine,
+			IOpenApiParsingEngine openApiParsingEngine,
+			IRenderEngine renderEngine,
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_contextFactory = contextFactory;
-			_openApiParsingEngine = generationEngine;
+			_openApiParsingEngine = openApiParsingEngine;
+			_renderEngine = renderEngine;
+			_fileCreationEngine = fileCreationEngine;
 			_logger = logger;
 		}
 
@@ -44,7 +53,7 @@ namespace Business.Managers
 				var templates = Context.Templates.Where(a => a.DataProviderName.Equals(dataProviderName, StringComparison.InvariantCultureIgnoreCase));
 				foreach (var template in templates)
 				{
-					await GenerateFiles(template, openApiResult, errors);
+					await GenerateFilesAsync(template, openApiResult.Result, errors);
 				}
 			}
 
@@ -57,35 +66,80 @@ namespace Business.Managers
 			return OperationResult.Ok();
 		}
 
-		private async Task GenerateFiles(Template template, OperationResult<OpenApiResult> openApiResult, List<OperationResult> errors)
+		private async Task GenerateFilesAsync(Template template, OpenApiResult openApiResult, List<OperationResult> errors)
 		{
 			switch (template.Type)
 			{
 				case TemplateType.Model:
-					var modelGenerationResult =
+				case TemplateType.Path:
+					var modelGenerationResult = await GenerateManyAsync(Context, template, openApiResult);
 					if (modelGenerationResult.Failed)
 					{
 						errors.Add(modelGenerationResult);
 					}
 					break;
 
-				case TemplateType.Path:
-					var pathGenerationResult = await _openApiParsingEngine.GeneratePathsAsync(Context, template);
-					if (pathGenerationResult.Failed)
-					{
-						errors.Add(pathGenerationResult);
-					}
-					break;
-
 				case TemplateType.Setup:
 				default:
-					var setupGenerationResult = await _openApiParsingEngine.GenerateSetupAsync(Context, template);
+					var setupGenerationResult = await GenerateOneAsync(Context, template, openApiResult);
 					if (setupGenerationResult.Failed)
 					{
 						errors.Add(setupGenerationResult);
 					}
 					break;
 			}
+		}
+
+		private async Task<OperationResult> GenerateManyAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		{
+			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(context, template);
+			var errors = new List<string>();
+			foreach (var model in openApiResult.Models)
+			{
+				// don't output the excluded types
+				if (template.ExcludeTheseTypes.Contains(model.Name.Value))
+				{
+					continue;
+				}
+				try
+				{
+					var output = _renderEngine.Render(template.TemplateText, model);
+					var path = destinationPath.Replace("{entityName}", model.Name.Value);
+					var result = await _fileCreationEngine.CreateFileAsync(path, output);
+					if (result.Failed)
+					{
+						var message = $"EntityName: {model.Name.Value}\r\nTemplateName: {template.Name} - {result.Message}";
+						errors.Add(message);
+					}
+				}
+				catch (Exception ex)
+				{
+					var message = $"EntityName: {model.Name.Value}\r\nTemplateName: {template.Name} - {ex.Message}";
+					errors.Add(message);
+				}
+			}
+			if (errors.Any())
+			{
+				var errorMessages = string.Join(Environment.NewLine, errors);
+				var message = $"Partial or total generation failure: {errorMessages}";
+				return OperationResult.Fail(message);
+			}
+			return OperationResult.Ok();
+		}
+
+		private async Task<OperationResult> GenerateOneAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		{
+			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(context, template);
+			var fileName = Path.GetFileName(destinationPath);
+			var modelGroup = new ModelGroup
+			{
+				Name = NameFactory.Create(fileName),
+				Data = openApiResult,
+				Namespace = template.Namespace,
+				Imports = template.Imports
+			};
+			var output = _renderEngine.Render(template.TemplateText, modelGroup);
+			return await _fileCreationEngine.CreateFileAsync(destinationPath, output);
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace Business.Engines
 	public class OpenApiParsingEngine : IOpenApiParsingEngine
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly ISetupGenerationEngine _setupGenerationEngine;
+		private readonly IFileCreationEngine _fileCreationEngine;
 		private ILogger<OpenApiParsingEngine> _logger;
 
 		private static readonly Dictionary<string, OpenAPIData> _openAPIData;
@@ -26,12 +26,12 @@ namespace Business.Engines
 
 		public OpenApiParsingEngine(
 			IHttpClientFactory httpClientFactory,
-			ISetupGenerationEngine setupGenerationEngine,
+			IFileCreationEngine fileCreationEngine,
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_httpClientFactory = httpClientFactory;
-			_setupGenerationEngine = setupGenerationEngine;
+			_fileCreationEngine = fileCreationEngine;
 			_logger = logger;
 		}
 
@@ -54,7 +54,7 @@ namespace Business.Engines
 		private List<Model> GetModels(OpenAPIData openAPIData, JsonDocumentOptions options)
 		{
 			var result = new List<Model>();
-			using (var document = JsonDocument.Parse(openAPIData.Result.Data, options))
+			using (var document = JsonDocument.Parse(openAPIData.Data, options))
 			{
 				var schemaNode = document.RootElement.EnumerateObject()
 									.First(a => a.Name.Equals("components", Comparison))

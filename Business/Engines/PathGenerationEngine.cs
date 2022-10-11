@@ -8,7 +8,7 @@ using Path = Domain.Models.Path;
 
 namespace Business.Engines
 {
-	public class PathGenerationEngine : IPathGenerationEngine
+    public class PathGenerationEngine 
 	{
 		private ILogger<PathGenerationEngine> _logger;
 
@@ -35,6 +35,7 @@ namespace Business.Engines
 				foreach (var pathNode in pathsNode.Value.EnumerateObject())
 				{
 					var path = new Path();
+					path.Name = NameFactory.Create(pathNode.Name);
 					path.Route = pathNode.Name;
 					path.Namespace = template.Namespace;
 					var verbs = pathNode.Value.EnumerateObject();
