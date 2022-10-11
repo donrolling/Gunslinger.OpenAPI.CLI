@@ -1,14 +1,11 @@
-﻿using Domain.Configuration;
-using Domain.Models;
-
-namespace Domain.Interfaces
+﻿namespace Domain.Interfaces
 {
 	public interface IFileCreationEngine
 	{
 		OperationResult CleanupOutputDirectory(string directory);
-		
-		Task<OperationResult> CreateFileAsync(string destinationPath, string output);		
 
-		string PrepareOutputDirectory(GenerationContext context, Template template);
+		Task<OperationResult> CreateFileAsync(string destinationPath, string output);
+
+		OperationResult PrepareOutputDirectory(string path, bool deleteAllItemsInOutputDirectory);
 	}
 }

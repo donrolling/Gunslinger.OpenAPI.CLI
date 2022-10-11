@@ -4,6 +4,7 @@ using Business.Managers;
 using Business.Providers;
 using Domain.Configuration;
 using Domain.Interfaces;
+using Engine.Engines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,10 +30,11 @@ namespace ProjectConfiguration
 					services.AddHttpClient();
 
 					// add services
+					services.AddTransient<IGenerationManager, GenerationManager>();
 					services.AddTransient<IContextFactory, ContextFactory>();
 					services.AddTransient<IFileTemplateProvider, FileTemplateProvider>();
 					services.AddTransient<IOpenApiParsingEngine, OpenApiParsingEngine>();
-					services.AddTransient<IGenerationManager, GenerationManager>();
+					services.AddTransient<IRenderEngine, HandlebarsRenderEngine>();
 					services.AddTransient<IFileCreationEngine, FileCreationEngine>();
 				})
 				.UseSerilog((hostContext, services, loggerConfiguration) =>

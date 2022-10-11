@@ -1,7 +1,5 @@
 ﻿using Domain;
-using Domain.Configuration;
 using Domain.Interfaces;
-using Domain.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using Path = System.IO.Path;
@@ -62,23 +60,21 @@ namespace Business.Engines
 			return OperationResult.Ok();
 		}
 
-		public string PrepareOutputDirectory(GenerationContext context, Template template)
+		public OperationResult PrepareOutputDirectory(string path, bool deleteAllItemsInOutputDirectory)
 		{
-			// cleanup the output directory
-			var destinationPath = Path.Join(context.RootPath, template.OutputRelativePath);
-			if (!template.DeleteAllItemsInOutputDirectory)
+			if (!deleteAllItemsInOutputDirectory)
 			{
 				// don't clean the directory if DeleteAllItemsInOutputDirectory is set to false
 				// this way a directory may contain elements that shouldn't be deleted.
 				// This is not preferred, but it gives us flexibility.
-				return destinationPath;
+				return OperationResult.Ok();
 			}
-			var destinationDirectory = Path.GetDirectoryName(destinationPath);
-			if (template.DeleteAllItemsInOutputDirectory)
+			var destinationDirectory = Path.GetDirectoryName(path);
+			if (deleteAllItemsInOutputDirectory)
 			{
-				var cleanupResult = CleanupOutputDirectory(destinationDirectory);
+				return CleanupOutputDirectory(destinationDirectory);
 			}
-			return destinationPath;
+			return OperationResult.Ok();
 		}
 
 		private static string makeValidFileName(string name)

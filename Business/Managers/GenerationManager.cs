@@ -7,6 +7,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using Path = System.IO.Path;
 
 namespace Business.Managers
@@ -92,10 +93,12 @@ namespace Business.Managers
 
 		private async Task<OperationResult> GenerateManyAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
-			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(context, template);
 			var errors = new List<string>();
 			foreach (var model in openApiResult.Models)
 			{
+				var outputRelativePath = template.OutputRelativePath;
+				var path = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", model.Name.Value);
+				var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 				// don't output the excluded types
 				if (template.ExcludeTheseTypes.Contains(model.Name.Value))
 				{
@@ -104,7 +107,6 @@ namespace Business.Managers
 				try
 				{
 					var output = _renderEngine.Render(template.TemplateText, model);
-					var path = destinationPath.Replace("{entityName}", model.Name.Value);
 					var result = await _fileCreationEngine.CreateFileAsync(path, output);
 					if (result.Failed)
 					{
@@ -129,8 +131,11 @@ namespace Business.Managers
 
 		private async Task<OperationResult> GenerateOneAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
-			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(context, template);
-			var fileName = Path.GetFileName(destinationPath);
+			var outputRelativePath = template.OutputRelativePath;
+			var path = $"{context.RootPath}\\{outputRelativePath}";
+			// don't need to perform 'entityName' replacement on single-file generation, because it doesn't make sense.
+			var destinationPath = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);			
+			var fileName = Path.GetFileName(path);
 			var modelGroup = new ModelGroup
 			{
 				Name = NameFactory.Create(fileName),
@@ -139,7 +144,7 @@ namespace Business.Managers
 				Imports = template.Imports
 			};
 			var output = _renderEngine.Render(template.TemplateText, modelGroup);
-			return await _fileCreationEngine.CreateFileAsync(destinationPath, output);
+			return await _fileCreationEngine.CreateFileAsync(path, output);
 		}
 	}
 }

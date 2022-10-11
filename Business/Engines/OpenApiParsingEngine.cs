@@ -13,7 +13,6 @@ namespace Business.Engines
 	public class OpenApiParsingEngine : IOpenApiParsingEngine
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly IFileCreationEngine _fileCreationEngine;
 		private ILogger<OpenApiParsingEngine> _logger;
 
 		private static readonly Dictionary<string, OpenAPIData> _openAPIData;
@@ -26,12 +25,10 @@ namespace Business.Engines
 
 		public OpenApiParsingEngine(
 			IHttpClientFactory httpClientFactory,
-			IFileCreationEngine fileCreationEngine,
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_httpClientFactory = httpClientFactory;
-			_fileCreationEngine = fileCreationEngine;
 			_logger = logger;
 		}
 
@@ -46,102 +43,147 @@ namespace Business.Engines
 			{
 				CommentHandling = JsonCommentHandling.Skip
 			};
-			var models = GetModels(openAPIData.Result, options);
-			var paths = GetPaths(openAPIData.Result, models, options);
-			return OperationResult.Ok(new OpenApiResult { Models = models, Paths = paths });
+			using (var document = JsonDocument.Parse(openAPIData.Result.Data, options))
+			{
+				var models = GetModels(document);
+				var paths = GetPaths(document, models);
+				return OperationResult.Ok(new OpenApiResult { Models = models, Paths = paths });
+			}
 		}
 
-		private List<Model> GetModels(OpenAPIData openAPIData, JsonDocumentOptions options)
+		private List<Model> GetModels(JsonDocument document)
 		{
 			var result = new List<Model>();
-			using (var document = JsonDocument.Parse(openAPIData.Data, options))
+			var schemaNode = document.RootElement.EnumerateObject()
+								.First(a => a.Name.Equals("components", Comparison))
+								.Value.EnumerateObject()
+								.First(a => a.Name.Equals("schemas", Comparison));
+			foreach (var component in schemaNode.Value.EnumerateObject())
 			{
-				var schemaNode = document.RootElement.EnumerateObject()
-									.First(a => a.Name.Equals("components", Comparison))
-									.Value.EnumerateObject()
-									.First(a => a.Name.Equals("schemas", Comparison));
-				foreach (var component in schemaNode.Value.EnumerateObject())
+				var model = new Model();
+				model.Name = NameFactory.Create(component.Name);
+				var modelProps = component.Value.EnumerateObject();
+				model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
+				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
+				foreach (var jsonProperty in properties.EnumerateObject())
 				{
-					var model = new Model();
-					model.Name = NameFactory.Create(component.Name);
-					var modelProps = component.Value.EnumerateObject();
-					model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
-					var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
-					foreach (var jsonProperty in properties.EnumerateObject())
-					{
-						var property = new Property();
-						property.Name = NameFactory.Create(jsonProperty.Name);
-						var propertyProperties = jsonProperty.Value.EnumerateObject();
-						var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-						// this won't explode if it is null
-						var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-						property.Type = string.IsNullOrWhiteSpace(typeFormat) ? type : typeFormat;
-						var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-						property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
-						model.Properties.Add(property);
-					}
-					result.Add(model);
+					var property = new Property();
+					property.Name = NameFactory.Create(jsonProperty.Name);
+					var propertyProperties = jsonProperty.Value.EnumerateObject();
+					var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
+					// this won't explode if it is null
+					var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
+					property.Type = TypeFactory.Create(type, typeFormat);
+					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
+					model.Properties.Add(property);
 				}
+				result.Add(model);
 			}
 			return result;
 		}
 
-		public List<Path> GetPaths(OpenAPIData openAPIData, List<Model> models, JsonDocumentOptions options)
+		public List<Path> GetPaths(JsonDocument document, List<Model> models)
 		{
-			using (var document = JsonDocument.Parse(openAPIData.Data, options))
+			var result = new List<Path>();
+			var pathsNode = document.RootElement.EnumerateObject()
+								.First(a => a.Name.Equals("paths", Comparison));
+			foreach (var pathNode in pathsNode.Value.EnumerateObject())
 			{
-				var result = new List<Path>();
-				var pathsNode = document.RootElement.EnumerateObject()
-									.First(a => a.Name.Equals("paths", Comparison));
-				foreach (var pathNode in pathsNode.Value.EnumerateObject())
+				var path = new Path();
+				path.Route = pathNode.Name;
+				var jsonVerbs = pathNode.Value.EnumerateObject();
+				foreach (var jsonVerb in jsonVerbs)
 				{
-					var path = new Path();
-					path.Route = pathNode.Name;
-					var verbs = pathNode.Value.EnumerateObject();
-					foreach (var verb in verbs)
+					var verb = new Verb();
+					verb.Name = jsonVerb.Name;
+					var jsonParameters = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("parameters", Comparison));
+					if (jsonParameters.Value.ValueKind == JsonValueKind.Undefined)
 					{
-						path.Verb = verb.Name;
-						var jsonParameters = verb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("parameters", Comparison));
-						if (jsonParameters.Value.ValueKind == JsonValueKind.Undefined)
-						{
-							var requestBody = verb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("requestBody", Comparison));
-							if (requestBody.Value.ValueKind == JsonValueKind.Undefined)
-							{
-								continue;
-							}
-							var requestObject = requestBody.Value.EnumerateObject()
-										.First(a => a.Name.Equals("content", Comparison))
-										.Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
-										.Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
-										.Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.Equals("$ref", Comparison))
-										.Value.ToString();
-						}
-						else
-						{
-							// route or querystring parameters
-							foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
-							{
-								var parameter = jsonParameter.EnumerateObject();
-								var property = new Property();
-								var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
-								property.Name = NameFactory.Create(parameterName);
-								var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();
-								var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-								// this won't explode if it is null
-								var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-								property.Type = string.IsNullOrWhiteSpace(typeFormat) ? type : typeFormat;
-								var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-								property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
-								path.Parameters.Add(property);
-							}
-							result.Add(path);
-						}
+						AddRequestAndResponseObjects(jsonVerb, verb, models);
 					}
+					else
+					{
+						AddParameters(verb, jsonParameters);
+					}
+					path.Verbs.Add(verb);
 				}
-				return result;
+				result.Add(path);
+			}
+			return result;
+		}
+
+		private static void AddParameters(Verb verb, JsonProperty jsonParameters)
+		{
+			// route or querystring parameters
+			foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
+			{
+				var parameter = jsonParameter.EnumerateObject();
+				var property = new Property();
+				var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
+				property.Name = NameFactory.Create(parameterName);
+				var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();
+				var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
+				// this won't explode if it is null
+				var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
+				property.Type = string.IsNullOrWhiteSpace(typeFormat) ? type : typeFormat;
+				var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+				property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
+				verb.Parameters.Add(property);
+			}
+		}
+
+		private void AddRequestAndResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
+		{
+			var requestBody = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("requestBody", Comparison));
+			if (requestBody.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return;
+			}
+			var requestObject = requestBody.Value.EnumerateObject()
+						.First(a => a.Name.Equals("content", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("$ref", Comparison))
+						.Value.ToString();
+			if (!string.IsNullOrEmpty(requestObject))
+			{
+				var requestObjectName = requestObject.Split('/').Last();
+				verb.RequestObject = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison));
+			}
+
+			var responses = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("responses", Comparison));
+			if (responses.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return;
+			}
+			var twoHundredContentResponse = responses
+										.Value.EnumerateObject()
+										.FirstOrDefault(a => a.Name.StartsWith("20", Comparison)).Value.EnumerateObject()
+										.FirstOrDefault(a => a.Name.Equals("content", Comparison));
+			if (twoHundredContentResponse.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return;
+			}
+			var responseObject = twoHundredContentResponse
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
+			if (responseObject.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return;
+			}
+			var responseObjectString = twoHundredContentResponse.Value.ToString();
+			if (!string.IsNullOrEmpty(responseObjectString))
+			{
+				var responseObjectName = responseObjectString.Split('/').Last();
+				verb.ResponseObject = models.FirstOrDefault(a => a.Name.Value.Equals(responseObjectName, Comparison));
 			}
 		}
 

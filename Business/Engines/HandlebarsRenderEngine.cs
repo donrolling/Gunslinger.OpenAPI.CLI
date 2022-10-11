@@ -2,8 +2,6 @@
 using Domain.Models;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Reflection;
 using Path = Domain.Models.Path;
 
 namespace Engine.Engines
@@ -24,24 +22,23 @@ namespace Engine.Engines
 
 		public string Render(string template, Model model)
 		{
-			return Render(template, model);
+			return Render<Model>(template, model);
 		}
 
 		public string Render(string template, ModelGroup modelGroup)
 		{
-			return Render(template, modelGroup);
+			return Render<ModelGroup>(template, modelGroup);
 		}
 
 		public string Render(string template, Path path)
 		{
-			return Render(template, path);
+			return Render<Path>(template, path);
 		}
 
-		private string Render<T>(string template, T obj)
+		private string Render<T>(string template, T obj) where T : INamed
 		{
 			try
 			{
-
 			}
 			catch (Exception ex)
 			{

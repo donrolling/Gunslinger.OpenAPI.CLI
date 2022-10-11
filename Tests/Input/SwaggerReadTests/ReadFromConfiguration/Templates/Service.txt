@@ -4,15 +4,9 @@ using {{.}};
 
 namespace {{Namespace}} 
 {
-	/// <summary>
-	/// {{Description}}
-	/// </summary>
-    public class I{{Name.Value}} 
+    public class {{Name.Value}}Service
     {
         {{#Properties}}
-        /// <summary>
-        /// {{Description}}
-        /// </summary>
         public {{{Type}}} {{Name.PascalCase}} { get; set; }
 
         {{/Properties}}

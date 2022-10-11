@@ -7,7 +7,7 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "http://localhost:8080/swagger/v1/swagger.json"
+			"Location": "Input\\SwaggerReadTests\\ReadFromConfiguration\\swagger.json"
 		}
 	],
 	"Templates": [
@@ -16,7 +16,7 @@
 			"Name": "Models",
 			"Namespace": "Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "SwaggerReadTests\\Output\\Models\\{entityName}.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Models\\{entityName}.cs",
 			"Language": "csharp",
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -27,7 +27,7 @@
 			"Name": "Services",
 			"Namespace": "Services",
 			"InputRelativePath": "Service.txt",
-			"OutputRelativePath": "SwaggerReadTests\\Output\\Services\\{entityName}.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Services\\{entityName}.cs",
 			"Language": "csharp",
 			"DataProviderName": "Swagger",
 			"Imports": [
