@@ -16,7 +16,11 @@
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Models",
-				"Routes"
+				"Routes",
+				"System",
+				"System.Text",
+				"System.Net.Http",
+				"System.Text.Json"
 			]
 		},
 		{
@@ -29,8 +33,7 @@
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Models",
-				"Routes",
-				"System.Text"
+				"Routes"
 			]
 		},
 		{
