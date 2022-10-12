@@ -29,6 +29,7 @@ namespace OutputTests.Tests
 			var result = await _testClient.PostStudentAsync(student);
 			Assert.IsNotNull(result);
 			Assert.IsTrue(result.Success, result.Message);
+			Assert.AreEqual(student.Age, result.Result.Age);
 		}
 	}
 }

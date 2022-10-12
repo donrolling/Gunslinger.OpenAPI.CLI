@@ -10,6 +10,16 @@ namespace {{Namespace}}
         private readonly HttpClient _httpClient;
         private readonly ILogger<{{Name.PascalCase}}> _logger;
 
+		private static readonly JsonSerializerOptions _options;
+
+        static {{Name.PascalCase}}()
+        { 
+            _options = new JsonSerializerOptions
+		    {
+			    PropertyNameCaseInsensitive = true
+		    };
+        }
+
         public {{Name.PascalCase}}(string baseUrl, HttpClient httpClient, ILogger<{{Name.PascalCase}}> logger)
         {
             _baseUrl = baseUrl;
@@ -66,7 +76,7 @@ namespace {{Namespace}}
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content, _options);
                         return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -92,7 +102,7 @@ namespace {{Namespace}}
             var url = GetUrl("{{../Path}}").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}});
+                var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
@@ -111,7 +121,7 @@ namespace {{Namespace}}
             var url = GetUrl("{{../Path}}").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}});
+                var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 var status = (int)response.StatusCode;
@@ -119,7 +129,7 @@ namespace {{Namespace}}
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content, _options);
 					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)

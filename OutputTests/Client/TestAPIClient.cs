@@ -12,6 +12,16 @@ namespace OutputTests.Client
         private readonly HttpClient _httpClient;
         private readonly ILogger<TestAPIClient> _logger;
 
+		private static readonly JsonSerializerOptions _options;
+
+        static TestAPIClient()
+        { 
+            _options = new JsonSerializerOptions
+		    {
+			    PropertyNameCaseInsensitive = true
+		    };
+        }
+
         public TestAPIClient(string baseUrl, HttpClient httpClient, ILogger<TestAPIClient> logger)
         {
             _baseUrl = baseUrl;
@@ -35,7 +45,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Course>(content);
+                        var result = JsonSerializer.Deserialize<Course>(content, _options);
                         return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -57,7 +67,7 @@ namespace OutputTests.Client
             var url = GetUrl("/api/Course").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize(course);
+                var body = JsonSerializer.Serialize(course, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 var status = (int)response.StatusCode;
@@ -65,7 +75,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Course>(content);
+                        var result = JsonSerializer.Deserialize<Course>(content, _options);
 					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -87,7 +97,7 @@ namespace OutputTests.Client
             var url = GetUrl("/api/Course").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize(course);
+                var body = JsonSerializer.Serialize(course, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 var status = (int)response.StatusCode;
@@ -95,7 +105,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Course>(content);
+                        var result = JsonSerializer.Deserialize<Course>(content, _options);
 					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -151,7 +161,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Student>(content);
+                        var result = JsonSerializer.Deserialize<Student>(content, _options);
                         return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -173,7 +183,7 @@ namespace OutputTests.Client
             var url = GetUrl("/api/Student").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize(student);
+                var body = JsonSerializer.Serialize(student, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 var status = (int)response.StatusCode;
@@ -181,7 +191,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Student>(content);
+                        var result = JsonSerializer.Deserialize<Student>(content, _options);
 					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
@@ -203,7 +213,7 @@ namespace OutputTests.Client
             var url = GetUrl("/api/Student").ToString();
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
-                var body = JsonSerializer.Serialize(student);
+                var body = JsonSerializer.Serialize(student, _options);
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 				var response = await _httpClient.SendAsync(request);
                 var status = (int)response.StatusCode;
@@ -211,7 +221,7 @@ namespace OutputTests.Client
 				{
                     try {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Student>(content);
+                        var result = JsonSerializer.Deserialize<Student>(content, _options);
 					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
