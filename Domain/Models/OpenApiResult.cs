@@ -4,6 +4,6 @@
 	{
 		public List<Model> Models { get; set; }
 
-		public List<Route> Paths { get; set; }
+		public List<Route> Routes { get; set; }
 	}
 }

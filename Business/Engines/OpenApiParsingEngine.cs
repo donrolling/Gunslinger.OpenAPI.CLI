@@ -47,7 +47,7 @@ namespace Business.Engines
 			{
 				var models = GetModels(document);
 				var paths = GetPaths(document, models);
-				return OperationResult.Ok(new OpenApiResult { Models = models, Paths = paths });
+				return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
 			}
 		}
 

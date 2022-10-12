@@ -73,7 +73,7 @@ namespace Business.Managers
 				model.Namespace = template.Namespace;
 				model.Imports = template.Imports;
 			}
-			foreach (var path in openApiResult.Paths)
+			foreach (var path in openApiResult.Routes)
 			{
 				path.Namespace = template.Namespace;
 				path.Imports = template.Imports;
@@ -169,7 +169,7 @@ namespace Business.Managers
 		private async Task<OperationResult> GeneratePathsAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
 			var errors = new List<string>();
-			foreach (var path in openApiResult.Paths)
+			foreach (var path in openApiResult.Routes)
 			{
 				var prepareDirectoryResult = PrepareDirectory(context, template, path);
 				if (prepareDirectoryResult.Failed)

@@ -7,7 +7,7 @@ namespace {{Namespace}}
     public interface {{Name.PascalCase}}
     {
         {{#Data ~}}        
-        {{#Paths ~}}
+        {{#Routes ~}}
         {{#Verbs ~}}
         {{#if RequestObjectIsEmpty ~}}        
         {{#if ResponseObjectIsEmpty}}
@@ -23,7 +23,7 @@ namespace {{Namespace}}
         {{/if ~}}
         {{/if}}        
         {{/Verbs ~}}
-        {{/Paths ~}}
+        {{/Routes ~}}
         {{/Data}}
     }
 }

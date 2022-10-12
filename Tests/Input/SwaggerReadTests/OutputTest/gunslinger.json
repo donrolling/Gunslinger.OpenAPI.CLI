@@ -4,16 +4,16 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\swagger.json"
+			"Location": "Input\\SwaggerReadTests\\OutputTest\\swagger.json"
 		}
 	],
 	"Templates": [
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "Client",
+			"Namespace": "OutputTests.Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\TestAPIClient.cs",
+			"OutputRelativePath": "TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Domain",
@@ -26,9 +26,9 @@
 		{
 			"Type": "Setup",
 			"Name": "ITestAPIClient",
-			"Namespace": "Client",
+			"Namespace": "OutputTests.Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\ITestAPIClient.cs",
+			"OutputRelativePath": "ITestAPIClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -39,21 +39,23 @@
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "Configuration",
+			"Namespace": "OutputTests.Client.Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Configuration\\ConfigurationHelper.cs",
+			"OutputRelativePath": "Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Models"
+				"Microsoft.Extensions.DependencyInjection",
+				"Microsoft.Extensions.Logging",
+				"System.Net.Http.Headers"
 			]
 		},
 		{
 			"Type": "Model",
 			"Name": "Models",
-			"Namespace": "Models",
+			"Namespace": "OutputTests.Client.Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Models\\{entityName}.cs",
+			"OutputRelativePath": "Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 			]
