@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace IntegrationTestProject.BaseClasses
+namespace OutputTests.BaseClasses
 {
 	public class IntegrationTestBase
 	{

@@ -1,8 +1,8 @@
 ﻿using AutoFixture;
-using Microservice_API1.Models;
 using Microsoft.AspNetCore.Mvc;
+using TestApiProject.Models;
 
-namespace Microservice_API1.Controllers
+namespace TestApiProject.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]

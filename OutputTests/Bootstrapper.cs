@@ -1,10 +1,10 @@
 ﻿using Enterprise.Configuration.Extensions;
-using IntegrationTestProject.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using OutputTests.Models;
 using Serilog;
 
-namespace IntegrationTestProject
+namespace OutputTests
 {
 	public static class Bootstrapper
 	{

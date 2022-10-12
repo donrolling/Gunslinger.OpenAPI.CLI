@@ -1,6 +1,6 @@
-using IntegrationTestProject.BaseClasses;
+using OutputTests.BaseClasses;
 
-namespace RepositoryTests.Tests
+namespace OutputTests.Tests
 {
 	[TestClass]
 	public class SampleTests : IntegrationTestBase

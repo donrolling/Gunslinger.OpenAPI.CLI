@@ -1,4 +1,4 @@
-﻿namespace Microservice_API1.Models
+﻿namespace TestApiProject.Models
 {
 	public class Course
 	{

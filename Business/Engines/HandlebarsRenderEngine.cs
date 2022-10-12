@@ -3,7 +3,7 @@ using Domain.Interfaces;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
 
-namespace Engine.Engines
+namespace Business.Engines
 {
 	public class HandlebarsRenderEngine : IRenderEngine
 	{
