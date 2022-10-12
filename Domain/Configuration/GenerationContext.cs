@@ -9,9 +9,9 @@ namespace Domain.Configuration
 
 		[Required]
 		public List<OpenAPISettings> DataProviders { get; set; } = new List<OpenAPISettings>();
-				
+
 		public string OutputDirectory { get; set; }
-		
+
 		public string RootPath { get; set; }
 
 		[Required]

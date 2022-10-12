@@ -7,7 +7,6 @@ using Domain.Interfaces;
 using Domain.Models;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
-using Path = System.IO.Path;
 
 namespace Business.Managers
 {
