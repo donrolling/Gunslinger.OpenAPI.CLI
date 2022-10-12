@@ -38,11 +38,12 @@ namespace {{Namespace}}
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
             {{#Parameters}}
+            urlBuilder.Append("{{Name.LowerCamelCase}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
             urlBuilder.Append("&");
             {{/Parameters}}            
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -63,11 +64,12 @@ namespace {{Namespace}}
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
             {{#Parameters}}
+            urlBuilder.Append("{{Name.LowerCamelCase}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
             urlBuilder.Append("&");
-            {{/Parameters}}            
+            {{/Parameters}}
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -86,7 +88,7 @@ namespace {{Namespace}}
                         return OperationResult.Fail<{{../Name.PascalCase}}>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
                 }
@@ -99,7 +101,7 @@ namespace {{Namespace}}
         {{#if ResponseObjectIsEmpty}}
         public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
         {
-            var url = GetUrl("{{../Path}}").ToString();
+            var url = GetUrl("{{../Path}}").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
@@ -109,16 +111,16 @@ namespace {{Namespace}}
 				{
 					return OperationResult.Ok();
 				}
-                else 
+                else
                 {
-					return OperationResult.Fail();                
+					return OperationResult.Fail();
                 }
 			}
         }
         {{else}}
         public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
         {
-            var url = GetUrl("{{../Path}}").ToString();
+            var url = GetUrl("{{../Path}}").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
@@ -139,7 +141,7 @@ namespace {{Namespace}}
                         return OperationResult.Fail<{{../Name.PascalCase}}>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
                 }

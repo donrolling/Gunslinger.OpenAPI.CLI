@@ -33,10 +33,11 @@ namespace OutputTests.Client
         {
             var urlBuilder = GetUrl("/api/Course");
             urlBuilder.Append("?");
+            urlBuilder.Append("id=");
             urlBuilder.Append(id.ToString());
             urlBuilder.Append("&");
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("GET"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -55,7 +56,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Course>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Course>($"Error - Status {status}");
                 }
@@ -64,7 +65,7 @@ namespace OutputTests.Client
         
         public async Task<OperationResult<Course>> PostCourseAsync(Course course)
         {
-            var url = GetUrl("/api/Course").ToString();
+            var url = GetUrl("/api/Course").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize(course, _options);
@@ -85,7 +86,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Course>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Course>($"Error - Status {status}");
                 }
@@ -94,7 +95,7 @@ namespace OutputTests.Client
         
         public async Task<OperationResult<Course>> PutCourseAsync(Course course)
         {
-            var url = GetUrl("/api/Course").ToString();
+            var url = GetUrl("/api/Course").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize(course, _options);
@@ -115,7 +116,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Course>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Course>($"Error - Status {status}");
                 }
@@ -126,10 +127,11 @@ namespace OutputTests.Client
         {
             var urlBuilder = GetUrl("/api/Course");
             urlBuilder.Append("?");
+            urlBuilder.Append("id=");
             urlBuilder.Append(id.ToString());
             urlBuilder.Append("&");
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -149,10 +151,11 @@ namespace OutputTests.Client
         {
             var urlBuilder = GetUrl("/api/Student");
             urlBuilder.Append("?");
+            urlBuilder.Append("id=");
             urlBuilder.Append(id.ToString());
             urlBuilder.Append("&");
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("GET"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -171,7 +174,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Student>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Student>($"Error - Status {status}");
                 }
@@ -180,7 +183,7 @@ namespace OutputTests.Client
         
         public async Task<OperationResult<Student>> PostStudentAsync(Student student)
         {
-            var url = GetUrl("/api/Student").ToString();
+            var url = GetUrl("/api/Student").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize(student, _options);
@@ -201,7 +204,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Student>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Student>($"Error - Status {status}");
                 }
@@ -210,7 +213,7 @@ namespace OutputTests.Client
         
         public async Task<OperationResult<Student>> PutStudentAsync(Student student)
         {
-            var url = GetUrl("/api/Student").ToString();
+            var url = GetUrl("/api/Student").ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
                 var body = JsonSerializer.Serialize(student, _options);
@@ -231,7 +234,7 @@ namespace OutputTests.Client
                         return OperationResult.Fail<Student>(message);
                     }
 				}
-                else 
+                else
                 {
                     return OperationResult.Fail<Student>($"Error - Status {status}");
                 }
@@ -242,10 +245,11 @@ namespace OutputTests.Client
         {
             var urlBuilder = GetUrl("/api/Student");
             urlBuilder.Append("?");
+            urlBuilder.Append("id=");
             urlBuilder.Append(id.ToString());
             urlBuilder.Append("&");
             urlBuilder.Length--;
-            var url = urlBuilder.ToString();
+            var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
 				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
