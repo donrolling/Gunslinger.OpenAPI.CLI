@@ -3,7 +3,7 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "Input\\SwaggerReadTests\\ReadFromConfiguration\\swagger.json"
+			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\swagger.json"
 		}
 	],
 	"Templates": [
@@ -12,7 +12,7 @@
 			"Name": "TestAPIClient",
 			"Namespace": "Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\TestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Models",
@@ -27,7 +27,7 @@
 			"Name": "ITestAPIClient",
 			"Namespace": "Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\ITestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\ITestAPIClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -39,7 +39,7 @@
 			"Name": "TestAPIClient",
 			"Namespace": "Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Configuration\\ConfigurationHelper.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -51,7 +51,7 @@
 			"Name": "Models",
 			"Namespace": "Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Models\\{entityName}.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 			]

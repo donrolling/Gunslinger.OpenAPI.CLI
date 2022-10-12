@@ -4,16 +4,16 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "Input\\SwaggerReadTests\\ReadFromConfiguration\\swagger.json"
+			"Location": "Input\\SwaggerReadTests\\OutputTest\\swagger.json"
 		}
 	],
 	"Templates": [
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "Client",
+			"Namespace": "OutputTests.Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\TestAPIClient.cs",
+			"OutputRelativePath": "TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Models",
@@ -26,9 +26,9 @@
 		{
 			"Type": "Setup",
 			"Name": "ITestAPIClient",
-			"Namespace": "Client",
+			"Namespace": "OutputTests.Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\ITestAPIClient.cs",
+			"OutputRelativePath": "ITestAPIClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -38,9 +38,9 @@
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "Configuration",
+			"Namespace": "OutputTests.Client.Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Configuration\\ConfigurationHelper.cs",
+			"OutputRelativePath": "Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -50,9 +50,9 @@
 		{
 			"Type": "Model",
 			"Name": "Models",
-			"Namespace": "Models",
+			"Namespace": "OutputTests.Client.Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\ReadFromConfiguration\\Models\\{entityName}.cs",
+			"OutputRelativePath": "Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 			]

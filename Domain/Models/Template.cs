@@ -39,7 +39,7 @@ namespace Domain.Models
 		public string Namespace { get; set; } = "DefaultNamespace";
 
 		/// <summary>
-		/// This is the relative path to which the item will be output. You may use {entityName} or {pathName} to format the output.
+		/// This is the relative path to which the item will be output. You may use {entityName} to format the output.
 		/// Example: "Entities\\{entityName}.cs",
 		/// </summary>
 		[Required]

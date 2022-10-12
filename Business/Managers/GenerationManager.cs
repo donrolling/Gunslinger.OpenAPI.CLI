@@ -1,4 +1,5 @@
-﻿using Business.Engines;
+﻿using Business.Constants;
+using Business.Engines;
 using Business.Factories;
 using Domain;
 using Domain.Configuration;
@@ -236,7 +237,8 @@ namespace Business.Managers
 		private OperationResult<string> PrepareDirectory(GenerationContext context, Template template, INamed item)
 		{
 			var outputRelativePath = template.OutputRelativePath;
-			var path = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", item.Name.Value);
+			var root = string.IsNullOrWhiteSpace(context.OutputDirectory) ? context.RootPath: context.OutputDirectory;
+			var path = $"{root}\\{outputRelativePath}".Replace(ConfigTemplateStrings.EntityName, item.Name.Value);
 			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);
 		}
@@ -244,7 +246,8 @@ namespace Business.Managers
 		private OperationResult<string> PrepareDirectory(GenerationContext context, Template template)
 		{
 			var outputRelativePath = template.OutputRelativePath;
-			var path = $"{context.RootPath}\\{outputRelativePath}";
+			var root = string.IsNullOrWhiteSpace(context.OutputDirectory) ? context.RootPath : context.OutputDirectory;
+			var path = $"{root}\\{outputRelativePath}";
 			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);
 		}
