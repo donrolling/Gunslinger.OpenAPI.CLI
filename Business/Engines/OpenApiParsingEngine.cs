@@ -6,7 +6,7 @@ using Domain.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Utilities.IO;
-using Path = Domain.Models.Path;
+using Route = Domain.Models.Route;
 
 namespace Business.Engines
 {
@@ -83,17 +83,17 @@ namespace Business.Engines
 			return result;
 		}
 
-		public List<Path> GetPaths(JsonDocument document, List<Model> models)
+		public List<Route> GetPaths(JsonDocument document, List<Model> models)
 		{
-			var result = new List<Path>();
+			var result = new List<Route>();
 			var pathsNode = document.RootElement.EnumerateObject()
 								.First(a => a.Name.Equals("paths", Comparison));
 			foreach (var pathNode in pathsNode.Value.EnumerateObject())
 			{
-				var path = new Path();
+				var route = new Route();
 				var pathName = pathNode.Name.Replace("/api/", "").Replace("/", "_");
-				path.Name = NameFactory.Create(pathName);
-				path.Route = pathNode.Name;
+				route.Name = NameFactory.Create(pathName);
+				route.Path = pathNode.Name;
 				var jsonVerbs = pathNode.Value.EnumerateObject();
 				foreach (var jsonVerb in jsonVerbs)
 				{
@@ -109,9 +109,9 @@ namespace Business.Engines
 						AddParameters(verb, jsonParameters);
 					}
 					AddResponseObjects(jsonVerb, verb, models);
-					path.Verbs.Add(verb);
+					route.Verbs.Add(verb);
 				}
-				result.Add(path);
+				result.Add(route);
 			}
 			return result;
 		}

@@ -126,13 +126,12 @@ namespace Business.Managers
 			var errors = new List<string>();
 			foreach (var model in openApiResult.Models)
 			{
-				var outputRelativePath = template.OutputRelativePath;
-				var path = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", model.Name.Value);
-				var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+				var prepareDirectoryResult = PrepareDirectory(context, template, model);
 				if (prepareDirectoryResult.Failed)
 				{
 					return prepareDirectoryResult;
 				}
+				var path = prepareDirectoryResult.Result;
 				// don't output the excluded types
 				if (template.ExcludeTheseTypes.Contains(model.Name.Value))
 				{
@@ -167,44 +166,17 @@ namespace Business.Managers
 			return OperationResult.Ok();
 		}
 
-		private async Task<OperationResult> GenerateSetupAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
-		{
-			var outputRelativePath = template.OutputRelativePath;
-			var path = $"{context.RootPath}\\{outputRelativePath}";
-			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
-			if (prepareDirectoryResult.Failed)
-			{
-				return prepareDirectoryResult;
-			}
-			// don't need to perform 'entityName' replacement on single-file generation, because it doesn't make sense.
-			var fileName = Path.GetFileName(path).Replace(".cs", "");
-			var modelGroup = new ModelGroup
-			{
-				Name = NameFactory.Create(template.Name),
-				Data = openApiResult,
-				Namespace = template.Namespace,
-				Imports = template.Imports
-			};
-			var outputResult = _renderEngine.Render(template.TemplateText, modelGroup);
-			if (outputResult.Failed)
-			{
-				return outputResult;
-			}
-			return await _fileCreationEngine.CreateFileAsync(path, outputResult.Result);
-		}
-
 		private async Task<OperationResult> GeneratePathsAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
 		{
 			var errors = new List<string>();
 			foreach (var path in openApiResult.Paths)
 			{
-				var outputRelativePath = template.OutputRelativePath;
-				var outputPath = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", path.Name.Value);
-				var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(outputPath, template.DeleteAllItemsInOutputDirectory);
+				var prepareDirectoryResult = PrepareDirectory(context, template, path);
 				if (prepareDirectoryResult.Failed)
 				{
 					return prepareDirectoryResult;
 				}
+				var outputPath = prepareDirectoryResult.Result;
 				// don't output the excluded types
 				if (template.ExcludeTheseTypes.Contains(path.Name.Value))
 				{
@@ -237,6 +209,45 @@ namespace Business.Managers
 				return OperationResult.Fail(message);
 			}
 			return OperationResult.Ok();
+		}
+
+		private async Task<OperationResult> GenerateSetupAsync(GenerationContext context, Template template, OpenApiResult openApiResult)
+		{
+			var prepareDirectoryResult = PrepareDirectory(context, template);
+			if (prepareDirectoryResult.Failed)
+			{
+				return prepareDirectoryResult;
+			}
+			var path = prepareDirectoryResult.Result;
+			var modelGroup = new ModelGroup
+			{
+				Name = NameFactory.Create(template.Name),
+				Data = openApiResult,
+				Namespace = template.Namespace,
+				Imports = template.Imports
+			};
+			var outputResult = _renderEngine.Render(template.TemplateText, modelGroup);
+			if (outputResult.Failed)
+			{
+				return outputResult;
+			}
+			return await _fileCreationEngine.CreateFileAsync(path, outputResult.Result);
+		}
+
+		private OperationResult<string> PrepareDirectory(GenerationContext context, Template template, INamed item)
+		{
+			var outputRelativePath = template.OutputRelativePath;
+			var path = $"{context.RootPath}\\{outputRelativePath}".Replace("{entityName}", item.Name.Value);
+			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);
+		}
+
+		private OperationResult<string> PrepareDirectory(GenerationContext context, Template template)
+		{
+			var outputRelativePath = template.OutputRelativePath;
+			var path = $"{context.RootPath}\\{outputRelativePath}";
+			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
+			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);
 		}
 	}
 }

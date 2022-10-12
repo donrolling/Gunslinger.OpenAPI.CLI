@@ -38,16 +38,16 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="Input\OutputTest\gunslinger.json">
+		<None Update="Input\SwaggerReadTests\OutputTest\gunslinger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Input\OutputTest\swagger.json">
+		<None Update="Input\SwaggerReadTests\OutputTest\swagger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\gunslinger.json">
+		<None Update="Input\SwaggerReadTests\RunGeneratorAgainstStoredJson\gunslinger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Input\SwaggerReadTests\ReadFromConfiguration\swagger.json">
+		<None Update="Input\SwaggerReadTests\RunGeneratorAgainstStoredJson\swagger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
