@@ -23,7 +23,7 @@ Use the wiki to see [documentation](https://github.com/donrolling/Gunslinger.Tem
 These three lines were needed in the csproj:
 ```
 <PackAsTool>true</PackAsTool>
-<ToolCommandName>gs</ToolCommandName>
+<ToolCommandName>gsoa</ToolCommandName>
 <PackageOutputPath>./nupkg</PackageOutputPath>
 ```
 ## Building and deploying
@@ -35,13 +35,13 @@ I think install works differently if using a non-local nupkg. More on that when 
 - create a nupkg in the PackageOutputPath location 
 	`dotnet pack`
 - install the tool globally
-	`dotnet tool install -g --add-source ./nupkg GunslingerCLI`
+	`dotnet tool install -g --add-source ./nupkg Gunslinger.OpenAPI.CLI --version [version number here]`
 
 **Update the tool**
-`dotnet tool update -g --add-source ./nupkg GunslingerCLI`
+`dotnet tool update -g --add-source ./nupkg Gunslinger.OpenAPI.CLI`
 
 **Uninstall the tool**
-`dotnet tool uninstall GunslingerCLI -g`
+`dotnet tool uninstall Gunslinger.OpenAPI.CLI -g`
 
 ## Using Docker for testing
 

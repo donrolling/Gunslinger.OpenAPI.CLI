@@ -42,7 +42,18 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<files>
+			<file src="README.md" target="" />
+		</files>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ProjectConfiguration\ProjectConfiguration.csproj" />
@@ -56,9 +67,6 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="logo.png" Pack="true" PackagePath="">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="README.md" Pack="true" PackagePath="">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
