@@ -6,19 +6,19 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>gs</ToolCommandName>
+		<ToolCommandName>gsoa</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<PackageId>Gunslinger.OpenAPI.CLI</PackageId>
 		<PackageVersion>1.0.0</PackageVersion>
-		<Title>Gunslinger CLI</Title>
+		<Title>Gunslinger OpenAPI CLI</Title>
 		<Authors>Don Rolling</Authors>
 		<Owners>Don Rolling</Owners>
 		<RequireLicenseAcceptance>false</RequireLicenseAcceptance>
-		<PackageProjectUrl>https://github.com/donrolling/GunslingerCLI</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/donrolling/GunslingerCLI</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/donrolling/Gunslinger.OpenAPI.CLI</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/donrolling/Gunslinger.OpenAPI.CLI</RepositoryUrl>
 		<RepositoryType>github</RepositoryType>
 		<RepositoryBranch>main</RepositoryBranch>
 		<Description>
@@ -30,11 +30,11 @@
 
 			I'm continuing in the tradition of naming this tool after a style of facial hair, hence the name Gunslinger.
 
-			Documentation: https://github.com/donrolling/GunslingerCLI/wiki
+			Documentation: https://github.com/donrolling/Gunslinger.OpenAPI.CLI/wiki
 
 			This project is new as of May 2022, so there may be some kinks to work out at first.
 
-			Please report issues here: https://github.com/donrolling/GunslingerCLI/issues
+			Please report issues here: https://github.com/donrolling/Gunslinger.OpenAPI.CLI/issues
 		</Description>
 		<Copyright>2022</Copyright>
 		<Language>en-US</Language>
