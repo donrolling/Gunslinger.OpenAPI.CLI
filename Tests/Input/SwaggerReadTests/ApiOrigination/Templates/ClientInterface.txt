@@ -1,0 +1,29 @@
+﻿{{#Imports}}
+using {{.}};
+{{/Imports}}
+
+namespace {{Namespace}} 
+{
+    public interface {{Name.PascalCase}}
+    {
+        {{#Data ~}}        
+        {{#Routes ~}}
+        {{#Verbs ~}}
+        {{#if RequestObjectIsEmpty ~}}        
+        {{#if ResponseObjectIsEmpty}}
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        {{else}}
+        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        {{/if ~}}
+        {{else ~}}
+        {{#if ResponseObjectIsEmpty}}
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        {{else}}
+        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        {{/if ~}}
+        {{/if}}        
+        {{/Verbs ~}}
+        {{/Routes ~}}
+        {{/Data}}
+    }
+}

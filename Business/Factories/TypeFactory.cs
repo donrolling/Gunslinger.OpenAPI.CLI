@@ -18,6 +18,10 @@
 			{
 				return "long";
 			}
+			else if (type == "boolean")
+			{
+				return "bool";
+			}
 			else if (type.StartsWith("int"))
 			{
 				return "int";

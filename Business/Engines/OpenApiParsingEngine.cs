@@ -54,10 +54,19 @@ namespace Business.Engines
 		private List<Model> GetModels(JsonDocument document)
 		{
 			var result = new List<Model>();
-			var schemaNode = document.RootElement.EnumerateObject()
-								.First(a => a.Name.Equals("components", Comparison))
+			var componentsNode = document.RootElement.EnumerateObject()
+								.FirstOrDefault(a => a.Name.Equals("components", Comparison));
+			if (componentsNode.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return result;
+			}
+			var schemaNode = componentsNode
 								.Value.EnumerateObject()
-								.First(a => a.Name.Equals("schemas", Comparison));
+								.FirstOrDefault(a => a.Name.Equals("schemas", Comparison));
+			if (schemaNode.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return result;
+			}
 			foreach (var component in schemaNode.Value.EnumerateObject())
 			{
 				var model = new Model();

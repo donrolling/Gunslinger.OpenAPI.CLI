@@ -33,15 +33,16 @@ namespace {{Namespace}}
         {{#if RequestObjectIsEmpty ~}}
         
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
             {{#Parameters}}
             urlBuilder.Append("{{Name.LowerCamelCase}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
-            {{#unless @last}}urlBuilder.Append("&");{{/unless}}
-            {{/Parameters}}
+            urlBuilder.Append("&");
+            {{/Parameters}}            
+            urlBuilder.Length--;
             var url = urlBuilder.ToString().ToLower();
             using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
 			{
@@ -58,14 +59,14 @@ namespace {{Namespace}}
 			}
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
             {{#Parameters}}
             urlBuilder.Append("{{Name.LowerCamelCase}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
-            {{#unless @last}}urlBuilder.Append("&");{{/unless}}
+            urlBuilder.Append("&");
             {{/Parameters}}
             urlBuilder.Length--;
             var url = urlBuilder.ToString().ToLower();

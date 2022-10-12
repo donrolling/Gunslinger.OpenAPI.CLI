@@ -1,0 +1,14 @@
+﻿{{#Imports}}
+using {{.}};
+{{/Imports}}
+
+namespace {{Namespace}} 
+{
+    public class {{Name.Value}} 
+    {
+        {{#Properties}}
+        public {{{Type}}} {{Name.PascalCase}} { get; set; }
+
+        {{/Properties}}
+    }
+}

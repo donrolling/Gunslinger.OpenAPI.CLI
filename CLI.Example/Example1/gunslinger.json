@@ -4,7 +4,7 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "swagger.json"
+			"Location": "http://localhost:8080/swagger/v1/swagger.json"
 		}
 	],
 	"Templates": [
