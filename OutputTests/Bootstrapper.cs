@@ -1,6 +1,7 @@
 ﻿using Enterprise.Configuration.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using OutputTests.Client.Configuration;
 using OutputTests.Models;
 using Serilog;
 
@@ -21,6 +22,8 @@ namespace OutputTests
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddConfiguration<AppSettings>(hostContext, nameof(AppSettings));
+					var appSettings = hostContext.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
+					services.ConfigureTestAPIClient(appSettings.BaseUrl);
 				})
 				.UseSerilog((hostContext, services, loggerConfiguration) =>
 				{

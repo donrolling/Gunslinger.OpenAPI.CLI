@@ -20,7 +20,7 @@ namespace {{Namespace}}
 				var httpClientFactory = a.GetService<IHttpClientFactory>();
 				var httpClient = httpClientFactory.CreateClient(APIClientName);
 				var logger = a.GetService<ILogger<{{Name.PascalCase}}>>();
-				return new {{Name.PascalCase}}Client(baseUrl, httpClient, logger);
+				return new {{Name.PascalCase}}(baseUrl, httpClient, logger);
 			});
 		}
 	}

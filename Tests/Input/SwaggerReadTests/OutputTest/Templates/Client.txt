@@ -6,27 +6,144 @@ namespace {{Namespace}}
 {
     public class {{Name.PascalCase}} : I{{Name.PascalCase}}
     {
-        {{#Data}}
+        private readonly string _baseUrl;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<{{Name.PascalCase}}> _logger;
 
-        {{#Verbs}}
-        {{#if RequestObjectIsEmpty}}
+        public {{Name.PascalCase}}(string baseUrl, HttpClient httpClient, ILogger<{{Name.PascalCase}}> logger)
+        {
+            _baseUrl = baseUrl;
+            _httpClient = httpClient;
+            _logger = logger;
+        }
+
+        {{#Data ~}}        
+        {{#Paths ~}}
+        {{#Verbs ~}}
+        {{#if RequestObjectIsEmpty ~}}
         
         {{#if ResponseObjectIsEmpty}}
-        public async Task<Response> {{Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
+        {
+            var urlBuilder = GetUrl("{{../Route}}");
+            urlBuilder.Append("?");
+            {{#Parameters}}
+            urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
+            urlBuilder.Append("&");
+            {{/Parameters}}            
+            urlBuilder.Length--;
+            var url = urlBuilder.ToString();
+            using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new System.Uri(url, UriKind.RelativeOrAbsolute)))
+			{
+				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                var status = (int)response.StatusCode;
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+                    return OperationResult.Fail($"Error - Status {status}");
+                }
+			}
+        }
         {{else}}
-        public async Task<{{ResponseObject.Name.PascalCase}}> {{Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
-        {{/if}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}})
+        {
+            var urlBuilder = GetUrl("{{../Route}}");
+            urlBuilder.Append("?");
+            {{#Parameters}}
+            urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
+            urlBuilder.Append("&");
+            {{/Parameters}}            
+            urlBuilder.Length--;
+            var url = urlBuilder.ToString();
+            using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new System.Uri(url, UriKind.RelativeOrAbsolute)))
+			{
+				var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                var status = (int)response.StatusCode;
+                if (response.IsSuccessStatusCode)
+				{
+                    try {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+                        return OperationResult.Ok(result);
+                    }
+                    catch(Exception ex)
+                    {
+                        var message = $"Error in response. Status {status}. Error: {ex.Message}";
+                        _logger.LogError(message);
+                        return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                    }
+				}
+                else 
+                {
+                    return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
+                }
+			}
+        }
+        {{/if ~}}
 
-        {{else}}
+        {{else ~}}
 
         {{#if ResponseObjectIsEmpty}}
-        public async Task<Response> {{Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+				{
+					return OperationResult.Ok();
+				}
+                else 
+                {
+					return OperationResult.Fail();                
+                }
+			}
+        }
         {{else}}
-        public async Task<{{ResponseObject.Name.PascalCase}}> {{Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
-        {{/if}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {
+            using (var request = new HttpRequestMessage())
+			{
+				request.Method = new HttpMethod("{{Name.UpperCase}}");
+				var response = await _httpClient.SendAsync(request);
+                var status = (int)response.StatusCode;
+                if (response.IsSuccessStatusCode)
+				{
+                    try {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+					    return OperationResult.Ok(result);
+                    }
+                    catch(Exception ex)
+                    {
+                        var message = $"Error in response. Status {status}. Error: {ex.Message}";
+                        _logger.LogError(message);
+                        return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                    }
+				}
+                else 
+                {
+                    return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
+                }
+			}
+        }
+        {{/if ~}}
 
         {{/if}}
         
+        {{/Verbs ~}}
+        {{/Paths ~}}
+
         {{/Data}}
+        private StringBuilder GetUrl(string route) 
+        {
+            var urlBuilder = new StringBuilder();
+            urlBuilder.Append(_baseUrl != null ? _baseUrl.TrimEnd('/') : "").Append(route);
+            return urlBuilder;
+        }
     }
 }

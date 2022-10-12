@@ -15,10 +15,10 @@
 			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Models",
-				"System",
+				"Domain",
+				"Microsoft.Extensions.Logging",
+				"OutputTests.Client.Models",
 				"System.Text",
-				"System.Net.Http",
 				"System.Text.Json"
 			]
 		},
@@ -31,7 +31,8 @@
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Models"
+				"Domain",
+				"OutputTests.Client.Models"
 			]
 		},
 		{

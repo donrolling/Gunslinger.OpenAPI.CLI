@@ -11,15 +11,15 @@ namespace {{Namespace}}
         {{#Verbs ~}}
         {{#if RequestObjectIsEmpty ~}}        
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
         {{/if ~}}
         {{else ~}}
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
         {{/if ~}}
         {{/if}}        
         {{/Verbs ~}}

@@ -6,5 +6,8 @@ namespace OutputTests.Models
 	{
 		[Required]
 		public string LogFilePath { get; set; }
+		
+		[Required]
+		public string BaseUrl { get; set; }
 	}
 }

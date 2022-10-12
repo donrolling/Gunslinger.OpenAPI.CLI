@@ -4,43 +4,44 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "Input\\SwaggerReadTests\\OutputTest\\swagger.json"
+			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\swagger.json"
 		}
 	],
 	"Templates": [
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "OutputTests.Client",
+			"Namespace": "Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "TestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Models",
-				"System",
+				"Domain",
+				"Microsoft.Extensions.Logging",
+				"OutputTests.Client.Models",
 				"System.Text",
-				"System.Net.Http",
 				"System.Text.Json"
 			]
 		},
 		{
 			"Type": "Setup",
 			"Name": "ITestAPIClient",
-			"Namespace": "OutputTests.Client",
+			"Namespace": "Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "ITestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\ITestAPIClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Models"
+				"Domain",
+				"OutputTests.Client.Models"
 			]
 		},
 		{
 			"Type": "Setup",
 			"Name": "TestAPIClient",
-			"Namespace": "OutputTests.Client.Configuration",
+			"Namespace": "Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Configuration\\ConfigurationHelper.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -50,9 +51,9 @@
 		{
 			"Type": "Model",
 			"Name": "Models",
-			"Namespace": "OutputTests.Client.Models",
+			"Namespace": "Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "Models\\{entityName}.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 			]

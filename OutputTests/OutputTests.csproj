@@ -13,6 +13,7 @@
 
 		<PackageReference Include="AutoFixture" Version="4.17.0" />
 		<PackageReference Include="coverlet.collector" Version="3.1.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
 
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
@@ -38,5 +39,9 @@
 
 	<ItemGroup>
 	  <Folder Include="Client\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Domain\Domain.csproj" />
 	</ItemGroup>
 </Project>

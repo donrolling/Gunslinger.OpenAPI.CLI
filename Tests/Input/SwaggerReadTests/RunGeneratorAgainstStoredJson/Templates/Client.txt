@@ -14,7 +14,7 @@ namespace {{Namespace}}
         {
             _baseUrl = baseUrl;
             _httpClient = httpClient;
-            _logger = _logger;
+            _logger = logger;
         }
 
         {{#Data ~}}        
@@ -64,22 +64,21 @@ namespace {{Namespace}}
                 var status = (int)response.StatusCode;
                 if (response.IsSuccessStatusCode)
 				{
-                    var content = string.Empty;
                     try {
-                        content = await response.Content.ReadAsStringAsync();
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+                        return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
                     {
                         var message = $"Error in response. Status {status}. Error: {ex.Message}";
                         _logger.LogError(message);
-                        return OperationResult.Fail(message);
+                        return OperationResult.Fail<{{../Name.PascalCase}}>(message);
                     }
-                    var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
-					return OperationResult.Ok(result);
 				}
                 else 
                 {
-                    return OperationResult.Fail($"Error - Status {status}");
+                    return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
                 }
 			}
         }
@@ -94,7 +93,6 @@ namespace {{Namespace}}
 			{
 				request.Method = new HttpMethod("{{Name.UpperCase}}");
 				var response = await _httpClient.SendAsync(request);
-                var content = await response_.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
 				{
 					return OperationResult.Ok();
@@ -115,22 +113,21 @@ namespace {{Namespace}}
                 var status = (int)response.StatusCode;
                 if (response.IsSuccessStatusCode)
 				{
-                    var content = string.Empty;
                     try {
-                        content = await response.Content.ReadAsStringAsync();
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
+					    return OperationResult.Ok(result);
                     }
                     catch(Exception ex)
                     {
                         var message = $"Error in response. Status {status}. Error: {ex.Message}";
                         _logger.LogError(message);
-                        return OperationResult.Fail(message);
+                        return OperationResult.Fail<{{../Name.PascalCase}}>(message);
                     }
-                    var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content);
-					return OperationResult.Ok(result);
 				}
                 else 
                 {
-                    return OperationResult.Fail($"Error - Status {status}");
+                    return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
                 }
 			}
         }
