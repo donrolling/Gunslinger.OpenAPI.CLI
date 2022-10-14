@@ -29,7 +29,7 @@ namespace OutputTests.Client
             _logger = logger;
         }
 
-        public async Task<OperationResult> PostOriginationGetChaseYetToFundEmailCandidatesAndEmailAsync(int lomHoursOldboolean affiliate)
+        public async Task<OperationResult> PostOriginationGetChaseYetToFundEmailCandidatesAndEmailAsync(int lomHoursOldbool affiliate)
         {
             var urlBuilder = GetUrl("/Origination/GetChaseYetToFundEmailCandidatesAndEmail");
             urlBuilder.Append("?");

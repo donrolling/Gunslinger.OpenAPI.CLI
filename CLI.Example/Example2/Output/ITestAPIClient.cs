@@ -5,6 +5,6 @@ namespace OutputTests.Client
 {
     public interface ITestAPIClient
     {
-        Task<OperationResult> PostOriginationGetChaseYetToFundEmailCandidatesAndEmailAsync(int lomHoursOldboolean affiliate);
+        Task<OperationResult> PostOriginationGetChaseYetToFundEmailCandidatesAndEmailAsync(int lomHoursOldbool affiliate);
     }
 }

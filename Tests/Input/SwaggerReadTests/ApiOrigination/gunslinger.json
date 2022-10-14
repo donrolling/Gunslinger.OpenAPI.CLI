@@ -1,5 +1,5 @@
 {
-	"OutputDirectory": "Output\\SwaggerReadTests\\ApiOrigination\\",
+	"OutputDirectory": "..\\..\\..\\..\\ApiOrigTests\\Client\\",
 	"TemplateDirectory": "Templates",
 	"DataProviders": [
 		{
@@ -10,36 +10,34 @@
 	"Templates": [
 		{
 			"Type": "Setup",
-			"Name": "TestAPIClient",
-			"Namespace": "OutputTests.Client",
+			"Name": "ApiOrigClient",
+			"Namespace": "ApiOrigTests.Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "TestAPIClient.cs",
+			"OutputRelativePath": "ApiOrigClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Domain",
 				"Microsoft.Extensions.Logging",
-				"OutputTests.Client.Models",
 				"System.Text",
 				"System.Text.Json"
 			]
 		},
 		{
 			"Type": "Setup",
-			"Name": "ITestAPIClient",
-			"Namespace": "OutputTests.Client",
+			"Name": "IApiOrigClient",
+			"Namespace": "ApiOrigTests.Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "ITestAPIClient.cs",
+			"OutputRelativePath": "IApiOrigClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
-				"Domain",
-				"OutputTests.Client.Models"
+				"Domain"
 			]
 		},
 		{
 			"Type": "Setup",
-			"Name": "TestAPIClient",
-			"Namespace": "OutputTests.Client.Configuration",
+			"Name": "ApiOrigClient",
+			"Namespace": "ApiOrigTests.Client.Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
 			"OutputRelativePath": "Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
@@ -53,7 +51,7 @@
 		{
 			"Type": "Model",
 			"Name": "Models",
-			"Namespace": "OutputTests.Client.Models",
+			"Namespace": "ApiOrigTests.Client.Models",
 			"InputRelativePath": "Model.txt",
 			"OutputRelativePath": "Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",

@@ -11,9 +11,9 @@ namespace {{Namespace}}
         {{#Verbs ~}}
         {{#if RequestObjectIsEmpty ~}}        
         {{#if ResponseObjectIsEmpty}}
-        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
         {{else}}
-        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{/Parameters}});
+        Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
         {{/if ~}}
         {{else ~}}
         {{#if ResponseObjectIsEmpty}}
