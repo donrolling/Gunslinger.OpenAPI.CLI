@@ -10,13 +10,6 @@ namespace Tests.Tests
 		}
 
 		[TestMethod]
-		public async Task ApiOrigination()
-		{
-			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");
-			Assert.IsTrue(result.Success, result.Message);
-		}
-
-		[TestMethod]
 		public async Task OutputTest()
 		{
 			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");
