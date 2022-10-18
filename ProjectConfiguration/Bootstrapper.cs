@@ -36,7 +36,7 @@ namespace ProjectConfiguration
 					services.AddTransient<IRenderEngine, HandlebarsRenderEngine>();
 					services.AddTransient<IFileCreationEngine, FileCreationEngine>();
 				})
-				.UseSerilog((hostContext, services, loggerConfiguration) =>
+				.UseSerilog((hostContext, loggerConfiguration) =>
 				{
 					var logPath = Path.Combine(AppContext.BaseDirectory, "Logs/log.txt").Replace("\\", "/");
 					loggerConfiguration

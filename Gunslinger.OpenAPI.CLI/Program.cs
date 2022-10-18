@@ -36,6 +36,7 @@ using (var scope = configuration.Host.Services.CreateScope())
 	{
 		logger.LogError("Model generation failed.");
 	}
+	
 	logger.LogInformation(result.Message);
 	// this is required because serilog doesn't flush messages quite fast enough if you don't do this.
 	Thread.Sleep(TimeSpan.FromSeconds(1));
