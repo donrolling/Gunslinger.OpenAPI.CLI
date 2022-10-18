@@ -50,5 +50,8 @@
 		<None Update="Input\SwaggerReadTests\RunGeneratorAgainstStoredJson\swagger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Input\TypeFactoryTests\ConfigFileTest\gunslinger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>

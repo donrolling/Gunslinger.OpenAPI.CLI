@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Business.Factories;
+using Domain;
 using Domain.Configuration;
 using Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,5 +50,20 @@ namespace Tests.BaseClasses
 				return await generatorService.GenerateAsync(commandSettings);
 			}
 		}
+
+
+		protected GenerationContext GetGenerationContext<T>(T testClass, TestContext testContext, string filename)
+		{
+			using (var scope = Host.Services.CreateScope())
+			{
+				var services = scope.ServiceProvider;
+				var logger = services.GetRequiredService<ILogger<T>>();
+				var generatorService = services.GetRequiredService<IGenerationManager>();
+				var contextFactory = services.GetRequiredService<IContextFactory>();
+				var commandSettings = GetCommandSettings(testContext, filename);
+				return contextFactory.Create(commandSettings).Result;
+			}
+		}
+
 	}
 }

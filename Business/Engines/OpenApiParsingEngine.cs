@@ -3,7 +3,9 @@ using Domain;
 using Domain.Configuration;
 using Domain.Interfaces;
 using Domain.Models;
+using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using System.Text.Json;
 using Utilities.IO;
 using Route = Domain.Models.Route;
@@ -12,11 +14,10 @@ namespace Business.Engines
 {
 	public class OpenApiParsingEngine : IOpenApiParsingEngine
 	{
+		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
+		private static readonly Dictionary<string, OpenAPIData> _openAPIData;
 		private readonly IHttpClientFactory _httpClientFactory;
 		private ILogger<OpenApiParsingEngine> _logger;
-
-		private static readonly Dictionary<string, OpenAPIData> _openAPIData;
-		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
 
 		static OpenApiParsingEngine()
 		{
@@ -32,67 +33,7 @@ namespace Business.Engines
 			_logger = logger;
 		}
 
-		public async Task<OperationResult<OpenApiResult>> ParseOpenApiAsync(GenerationContext context, string dataProviderName)
-		{
-			var openAPIData = await GetOpenAPISettingsAsync(context, dataProviderName);
-			if (openAPIData.Failed)
-			{
-				return OperationResult.Fail<OpenApiResult>(openAPIData.Message);
-			}
-			var options = new JsonDocumentOptions
-			{
-				CommentHandling = JsonCommentHandling.Skip
-			};
-			using (var document = JsonDocument.Parse(openAPIData.Result.Data, options))
-			{
-				var models = GetModels(document);
-				var paths = GetPaths(document, models);
-				return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
-			}
-		}
-
-		private List<Model> GetModels(JsonDocument document)
-		{
-			var result = new List<Model>();
-			var componentsNode = document.RootElement.EnumerateObject()
-								.FirstOrDefault(a => a.Name.Equals("components", Comparison));
-			if (componentsNode.Value.ValueKind == JsonValueKind.Undefined)
-			{
-				return result;
-			}
-			var schemaNode = componentsNode
-								.Value.EnumerateObject()
-								.FirstOrDefault(a => a.Name.Equals("schemas", Comparison));
-			if (schemaNode.Value.ValueKind == JsonValueKind.Undefined)
-			{
-				return result;
-			}
-			foreach (var component in schemaNode.Value.EnumerateObject())
-			{
-				var model = new Model();
-				model.Name = NameFactory.Create(component.Name);
-				var modelProps = component.Value.EnumerateObject();
-				model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
-				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
-				foreach (var jsonProperty in properties.EnumerateObject())
-				{
-					var property = new Property();
-					property.Name = NameFactory.Create(jsonProperty.Name);
-					var propertyProperties = jsonProperty.Value.EnumerateObject();
-					var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-					// this won't explode if it is null
-					var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-					property.Type = TypeFactory.Create(type, typeFormat);
-					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
-					model.Properties.Add(property);
-				}
-				result.Add(model);
-			}
-			return result;
-		}
-
-		public List<Route> GetPaths(JsonDocument document, List<Model> models)
+		public List<Route> GetPaths(JsonDocument document, List<Model> models, GenerationContext context)
 		{
 			var result = new List<Route>();
 			var pathsNode = document.RootElement.EnumerateObject()
@@ -115,7 +56,7 @@ namespace Business.Engines
 					}
 					else
 					{
-						AddParameters(verb, jsonParameters);
+						AddParameters(verb, jsonParameters, context);
 					}
 					AddResponseObjects(jsonVerb, verb, models);
 					route.Verbs.Add(verb);
@@ -125,7 +66,26 @@ namespace Business.Engines
 			return result;
 		}
 
-		private static void AddParameters(Verb verb, JsonProperty jsonParameters)
+		public async Task<OperationResult<OpenApiResult>> ParseOpenApiAsync(GenerationContext context, string dataProviderName)
+		{
+			var openAPIData = await GetOpenAPISettingsAsync(context, dataProviderName);
+			if (openAPIData.Failed)
+			{
+				return OperationResult.Fail<OpenApiResult>(openAPIData.Message);
+			}
+			var options = new JsonDocumentOptions
+			{
+				CommentHandling = JsonCommentHandling.Skip
+			};
+			using (var document = JsonDocument.Parse(openAPIData.Result.Data, options))
+			{
+				var models = GetModels(document, context);
+				var paths = GetPaths(document, models, context);
+				return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
+			}
+		}
+
+		private void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context)
 		{
 			// route or querystring parameters
 			foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
@@ -134,11 +94,9 @@ namespace Business.Engines
 				var property = new Property();
 				var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
 				property.Name = NameFactory.Create(parameterName);
-				var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();
-				var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-				// this won't explode if it is null
-				var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-				property.Type = property.Type = TypeFactory.Create(type, typeFormat);
+				var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();				
+				var openApiType = GetOpenApiType(propertyProperties);
+				property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
 				var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
 				property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
 				verb.Parameters.Add(property);
@@ -202,40 +160,6 @@ namespace Business.Engines
 			}
 		}
 
-		private async Task<OperationResult<OpenAPIData>> GetOpenAPISettingsAsync(GenerationContext context, string dataProviderName)
-		{
-			var dataProvider = context
-					.DataProviders
-					.FirstOrDefault(a =>
-						string.Equals(a.Name, dataProviderName, StringComparison.InvariantCultureIgnoreCase)
-					);
-			if (dataProvider == null)
-			{
-				return OperationResult.Fail<OpenAPIData>($"Could not find a data provider named: {dataProviderName}");
-			}
-			if (string.IsNullOrWhiteSpace(dataProvider.Location))
-			{
-				return OperationResult.Fail<OpenAPIData>($"Data provider named: {dataProviderName} had a missing Location parameter.");
-			}
-			if (_openAPIData.ContainsKey(dataProvider.Name))
-			{
-				OpenAPIData value = null;
-				if (!_openAPIData.TryGetValue(dataProvider.Name, out value))
-				{
-					return OperationResult.Fail<OpenAPIData>($"Attempted to retrieve data provider named: {dataProviderName}, but failed.");
-				}
-				return OperationResult.Ok(value);
-			}
-			var dataResult = await GetDataAsync(context, dataProvider);
-			if (dataResult.Failed)
-			{
-				return OperationResult.Fail<OpenAPIData>(dataResult.Message);
-			}
-			var result = new OpenAPIData { Name = dataProvider.Name, Location = dataProvider.Location, Data = dataResult.Result };
-			_openAPIData.Add(dataProvider.Name, result);
-			return OperationResult.Ok(result);
-		}
-
 		private async Task<OperationResult<string>> GetDataAsync(GenerationContext context, OpenAPISettings dataProvider)
 		{
 			// datasource could be an url or a path
@@ -274,6 +198,96 @@ namespace Business.Engines
 				return OperationResult.Fail<string>($"Http call returned no data");
 			}
 			return OperationResult.Ok(content);
+		}
+
+		private List<Model> GetModels(JsonDocument document, GenerationContext context)
+		{
+			var result = new List<Model>();
+			var componentsNode = document.RootElement.EnumerateObject()
+								.FirstOrDefault(a => a.Name.Equals("components", Comparison));
+			if (componentsNode.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return result;
+			}
+			var schemaNode = componentsNode
+								.Value.EnumerateObject()
+								.FirstOrDefault(a => a.Name.Equals("schemas", Comparison));
+			if (schemaNode.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				return result;
+			}
+			foreach (var component in schemaNode.Value.EnumerateObject())
+			{
+				var model = new Model();
+				model.Name = NameFactory.Create(component.Name);
+				var modelProps = component.Value.EnumerateObject();
+				model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
+				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
+				foreach (var jsonProperty in properties.EnumerateObject())
+				{
+					var property = new Property();
+					property.Name = NameFactory.Create(jsonProperty.Name);
+					var propertyProperties = jsonProperty.Value.EnumerateObject();
+					var openApiType = GetOpenApiType(propertyProperties);
+					property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
+					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
+					model.Properties.Add(property);
+				}
+				result.Add(model);
+			}
+			return result;
+		}
+
+		private async Task<OperationResult<OpenAPIData>> GetOpenAPISettingsAsync(GenerationContext context, string dataProviderName)
+		{
+			var dataProvider = context
+					.DataProviders
+					.FirstOrDefault(a =>
+						string.Equals(a.Name, dataProviderName, StringComparison.InvariantCultureIgnoreCase)
+					);
+			if (dataProvider == null)
+			{
+				return OperationResult.Fail<OpenAPIData>($"Could not find a data provider named: {dataProviderName}");
+			}
+			if (string.IsNullOrWhiteSpace(dataProvider.Location))
+			{
+				return OperationResult.Fail<OpenAPIData>($"Data provider named: {dataProviderName} had a missing Location parameter.");
+			}
+			if (_openAPIData.ContainsKey(dataProvider.Name))
+			{
+				OpenAPIData value = null;
+				if (!_openAPIData.TryGetValue(dataProvider.Name, out value))
+				{
+					return OperationResult.Fail<OpenAPIData>($"Attempted to retrieve data provider named: {dataProviderName}, but failed.");
+				}
+				return OperationResult.Ok(value);
+			}
+			var dataResult = await GetDataAsync(context, dataProvider);
+			if (dataResult.Failed)
+			{
+				return OperationResult.Fail<OpenAPIData>(dataResult.Message);
+			}
+			var result = new OpenAPIData { Name = dataProvider.Name, Location = dataProvider.Location, Data = dataResult.Result };
+			_openAPIData.Add(dataProvider.Name, result);
+			return OperationResult.Ok(result);
+		}
+
+		private OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties)
+		{
+			var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
+			// this won't explode if it is null
+			var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
+			var nullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+
+			return new OpenApiType
+			{
+				Type = type,
+				Format = typeFormat,
+				Nullable = string.IsNullOrWhiteSpace(nullable) 
+					? false
+					: BooleanConverter.ReferenceEquals(nullable, false)
+			};
 		}
 	}
 }

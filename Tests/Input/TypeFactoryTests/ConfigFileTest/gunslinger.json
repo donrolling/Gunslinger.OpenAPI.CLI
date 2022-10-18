@@ -1,0 +1,121 @@
+{
+	"TemplateDirectory": "Templates",
+	"DataProviders": [
+		{
+			"Name": "Swagger",
+			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainstStoredJson\\swagger.json"
+		}
+	],
+	"TypeConfiguration": [
+
+		{
+			"DataType": "boolean",
+			"Format": "",
+			"DestinationType": "bool"
+		},
+
+		{
+			"DataType": "boolean",
+			"Format": "",
+			"Nullable": true,
+			"DestinationType": "bool?"
+		},
+
+		{
+			"DataType": "string",
+			"Format": "date",
+			"DestinationType": "DateTime"
+		},
+		{
+			"DataType": "string",
+			"Format": "date-time",
+			"DestinationType": "DateTime"
+		},
+		{
+			"DataType": "string",
+			"Format": "password",
+			"DestinationType": "string"
+		},
+		{
+			"DataType": "string",
+			"Format": "byte",
+			"DestinationType": "Byte"
+		},
+		{
+			"DataType": "string",
+			"Format": "date",
+			"DestinationType": "DateTime"
+		},
+		{
+			"DataType": "string",
+			"Format": "binary",
+			"DestinationType": "string"
+		},
+		{
+			"DataType": "string",
+			"Format": "email",
+			"DestinationType": "string"
+		},
+		{
+			"DataType": "string",
+			"Format": "uuid",
+			"DestinationType": "Guid"
+		},
+		{
+			"DataType": "string",
+			"Format": "uuid",
+			"Nullable": true,
+			"DestinationType": "Guid?"
+		},
+		{
+			"DataType": "string",
+			"Format": "uri",
+			"DestinationType": "Uri"
+		},
+		{
+			"DataType": "number",
+			"Format": "-",
+			"DestinationType": "int"
+		},
+		{
+			"DataType": "number",
+			"Format": "float",
+			"DestinationType": "Float"
+		},
+		{
+			"DataType": "number",
+			"Format": "double",
+			"DestinationType": "Double"
+		},
+		{
+			"DataType": "integer",
+			"Format": "int32",
+			"DestinationType": "int"
+		},
+		{
+			"DataType": "integer",
+			"Format": "int64",
+			"DestinationType": "long"
+		},
+		{
+			"DataType": "integer",
+			"Format": "int32",
+			"Nullable": true,
+			"DestinationType": "int?"
+		},
+		{
+			"DataType": "integer",
+			"Format": "int64",
+			"Nullable": true,
+			"DestinationType": "long?"
+		},
+		{
+			"DataType": "array",
+			"Items": {
+				"DataType": "integer",
+				"Format": "int64"
+			},
+			"DestinationType": "List<long>"
+		}
+	]
+}

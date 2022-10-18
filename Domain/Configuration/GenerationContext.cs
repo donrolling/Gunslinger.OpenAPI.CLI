@@ -18,5 +18,7 @@ namespace Domain.Configuration
 		public string TemplateDirectory { get; set; }
 
 		public List<Template> Templates { get; set; } = new List<Template>();
+
+		public List<DataTypeTransformation> TypeConfiguration { get; set; }
 	}
 }

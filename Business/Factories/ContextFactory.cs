@@ -39,7 +39,10 @@ namespace Business.Factories
 			var generationContext = generationContextReadResult.Result;
 			generationContext.RootPath = commandSettings.RootPath;
 			generationContext.TemplateDirectory = FixPath(configPath, generationContext.TemplateDirectory);
-
+			if (generationContext.TypeConfiguration == null || !generationContext.TypeConfiguration.Any())
+			{
+				generationContext.TypeConfiguration = TypeFactory.GetStandardConfiguration();
+			}
 			ReadTemplateText(generationContext);
 			return OperationResult.Ok(generationContext);
 		}
