@@ -22,6 +22,10 @@
 			{
 				return "bool";
 			}
+			else if (type == "date-time")
+			{
+				return "DateTime";
+			}
 			else if (type.StartsWith("int"))
 			{
 				return "int";
