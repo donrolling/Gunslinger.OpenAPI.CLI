@@ -19,7 +19,7 @@ namespace Business.Managers
 		private readonly IContextFactory _contextFactory;
 		private readonly IFileCreationEngine _fileCreationEngine;
 		private readonly ILogger<OpenApiParsingEngine> _logger;
-		private readonly List<IParsingEngine> _parsingEngines;
+		private readonly IEnumerable<IParsingEngine> _parsingEngines;
 		private readonly IRenderEngine _renderEngine;
 		private readonly IJsonDocumentEngine _jsonDocumentEngine;
 
@@ -27,7 +27,7 @@ namespace Business.Managers
 			IContextFactory contextFactory,
 			IFileCreationEngine fileCreationEngine,
 			IJsonDocumentEngine jsonDocumentEngine,
-			List<IParsingEngine> parsingEngines,
+			IEnumerable<IParsingEngine> parsingEngines,
 			IRenderEngine renderEngine,
 			ILogger<OpenApiParsingEngine> logger
 		)
