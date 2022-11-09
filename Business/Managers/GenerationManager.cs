@@ -8,6 +8,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Business.Managers
 {
@@ -18,21 +19,24 @@ namespace Business.Managers
 		private readonly IContextFactory _contextFactory;
 		private readonly IFileCreationEngine _fileCreationEngine;
 		private readonly ILogger<OpenApiParsingEngine> _logger;
-		private readonly IOpenApiParsingEngine _openApiParsingEngine;
+		private readonly List<IParsingEngine> _parsingEngines;
 		private readonly IRenderEngine _renderEngine;
+		private readonly IJsonDocumentEngine _jsonDocumentEngine;
 
 		public GenerationManager(
 			IContextFactory contextFactory,
 			IFileCreationEngine fileCreationEngine,
-			IOpenApiParsingEngine openApiParsingEngine,
+			IJsonDocumentEngine jsonDocumentEngine,
+			List<IParsingEngine> parsingEngines,
 			IRenderEngine renderEngine,
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_contextFactory = contextFactory;
-			_openApiParsingEngine = openApiParsingEngine;
+			_parsingEngines = parsingEngines;
 			_renderEngine = renderEngine;
 			_fileCreationEngine = fileCreationEngine;
+			_jsonDocumentEngine = jsonDocumentEngine;
 			_logger = logger;
 		}
 
@@ -49,12 +53,37 @@ namespace Business.Managers
 			var dataProviderNames = Context.Templates.Select(a => a.DataProviderName).Distinct();
 			foreach (var dataProviderName in dataProviderNames)
 			{
-				var openApiResult = await _openApiParsingEngine.ParseOpenApiAsync(Context, dataProviderName);
-				var templates = Context.Templates.Where(a => a.DataProviderName.Equals(dataProviderName, StringComparison.InvariantCultureIgnoreCase));
-				foreach (var template in templates)
+				var jsonDocumentResult = await _jsonDocumentEngine.GetJsonDocAsync(Context, dataProviderName);
+				if (jsonDocumentResult.Failed)
 				{
-					await GenerateFilesAsync(template, openApiResult.Result, errors);
+					errors.Add(jsonDocumentResult);
+					continue;
 				}
+				switch (jsonDocumentResult.Result.SupportedDocTypes)
+				{
+					case SupportedDocTypes.Swagger_2_0:
+						var parseSwagger_2_0AResult = await ParseSwagger_2_0Async(errors, dataProviderName, jsonDocumentResult.Result.JsonDocument, Context);
+						if (parseSwagger_2_0AResult.Failed) { 
+							errors.Add(parseSwagger_2_0AResult); 
+						}
+						break;
+
+					case SupportedDocTypes.OpenAPI_3_0:
+						var ParseOpenAPI_3_0Result = await ParseOpenAPI_3_0Async(errors, dataProviderName, jsonDocumentResult.Result.JsonDocument, Context);
+						if (ParseOpenAPI_3_0Result.Failed)
+						{
+							errors.Add(ParseOpenAPI_3_0Result);
+						}
+						break;
+
+					case SupportedDocTypes.Unknown:
+					default:
+						var xs = string.Join(", ", Enum.GetNames(typeof(SupportedDocTypes)).Where(a => a != SupportedDocTypes.Unknown.ToString()));
+						errors.Add(OperationResult.Fail($"DocType not matched. Supported Doc Types include: {xs}"));
+						break;
+				}
+				// make sure to dispose the jsonDocument
+				jsonDocumentResult.Result.JsonDocument.Dispose();
 			}
 
 			// done
@@ -234,10 +263,42 @@ namespace Business.Managers
 			return await _fileCreationEngine.CreateFileAsync(path, outputResult.Result);
 		}
 
+		private async Task<OperationResult> ParseOpenAPI_3_0Async(List<OperationResult> errors, string dataProviderName, JsonDocument jsonDocument, GenerationContext context)
+		{
+			var engine = _parsingEngines.Where(a => a.SupportedDocTypes == SupportedDocTypes.OpenAPI_3_0).FirstOrDefault();
+			if (engine == null)
+			{
+				OperationResult.Fail($"{SupportedDocTypes.Swagger_2_0} engine not found.");
+			}
+			var openApiResult = engine.Parse(jsonDocument, context);
+			var templates = Context.Templates.Where(a => a.DataProviderName.Equals(dataProviderName, StringComparison.InvariantCultureIgnoreCase));
+			foreach (var template in templates)
+			{
+				await GenerateFilesAsync(template, openApiResult.Result, errors);
+			}
+			return OperationResult.Ok();
+		}
+
+		private async Task<OperationResult> ParseSwagger_2_0Async(List<OperationResult> errors, string dataProviderName, JsonDocument jsonDocument, GenerationContext context)
+		{
+			var engine = _parsingEngines.Where(a => a.SupportedDocTypes == SupportedDocTypes.Swagger_2_0).FirstOrDefault();
+			if (engine == null)
+			{
+				OperationResult.Fail($"{SupportedDocTypes.Swagger_2_0} engine not found.");
+			}
+			var openApiResult = engine.Parse(jsonDocument, context);
+			var templates = Context.Templates.Where(a => a.DataProviderName.Equals(dataProviderName, StringComparison.InvariantCultureIgnoreCase));
+			foreach (var template in templates)
+			{
+				await GenerateFilesAsync(template, openApiResult.Result, errors);
+			}
+			return OperationResult.Ok();
+		}
+
 		private OperationResult<string> PrepareDirectory(GenerationContext context, Template template, INamed item)
 		{
 			var outputRelativePath = template.OutputRelativePath;
-			var root = string.IsNullOrWhiteSpace(context.OutputDirectory) ? context.RootPath: context.OutputDirectory;
+			var root = string.IsNullOrWhiteSpace(context.OutputDirectory) ? context.RootPath : context.OutputDirectory;
 			var path = $"{root}\\{outputRelativePath}".Replace(ConfigTemplateStrings.EntityName, item.Name.Value);
 			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);

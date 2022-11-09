@@ -11,15 +11,15 @@ using Route = Domain.Models.Route;
 
 namespace Business.Engines
 {
-	public class OpenApiParsingEngine : IParsingEngine
+	public class Swagger_2_0_ParsingEngine : IParsingEngine
 	{
-		public SupportedDocTypes SupportedDocTypes => SupportedDocTypes.OpenAPI_3_0;
-		
+		public SupportedDocTypes SupportedDocTypes => SupportedDocTypes.Swagger_2_0;
+
 		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
 		
 		private ILogger<OpenApiParsingEngine> _logger;
 
-		public OpenApiParsingEngine(
+		public Swagger_2_0_ParsingEngine(
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{

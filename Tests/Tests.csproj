@@ -44,6 +44,12 @@
 		<None Update="Input\SwaggerReadTests\OutputTest\swagger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Input\SwaggerReadTests\RunGeneratorAgainst2_0Json\gunslinger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Input\SwaggerReadTests\RunGeneratorAgainst2_0Json\swagger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="Input\SwaggerReadTests\RunGeneratorAgainstStoredJson\gunslinger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>

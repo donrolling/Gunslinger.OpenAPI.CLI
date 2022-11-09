@@ -32,9 +32,13 @@ namespace ProjectConfiguration
 					services.AddTransient<IGenerationManager, GenerationManager>();
 					services.AddTransient<IContextFactory, ContextFactory>();
 					services.AddTransient<IFileTemplateProvider, FileTemplateProvider>();
-					services.AddTransient<IOpenApiParsingEngine, OpenApiParsingEngine>();
 					services.AddTransient<IRenderEngine, HandlebarsRenderEngine>();
 					services.AddTransient<IFileCreationEngine, FileCreationEngine>();
+					services.AddTransient<IJsonDocumentEngine, JsonDocumentEngine>();
+
+					// parsing engines
+					services.AddTransient<IParsingEngine, OpenApiParsingEngine>();
+					services.AddTransient<IParsingEngine, Swagger_2_0_ParsingEngine>();
 				})
 				.UseSerilog((hostContext, loggerConfiguration) =>
 				{

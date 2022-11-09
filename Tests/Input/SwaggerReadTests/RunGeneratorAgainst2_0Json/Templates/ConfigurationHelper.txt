@@ -1,0 +1,27 @@
+﻿{{#Imports}}
+using {{.}};
+{{/Imports}}
+
+namespace {{Namespace}} 
+{    
+	public static class ConfigurationHelper
+	{
+		private const string APIClientName = "{{Name.PascalCase}}";
+
+		public static void Configure{{Name.PascalCase}}(this IServiceCollection services, string baseUrl)
+		{
+			services.AddHttpClient(APIClientName, httpClient =>
+			{
+				httpClient.DefaultRequestHeaders.Accept.Clear();
+				httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			});
+			services.AddTransient<I{{Name.PascalCase}}>(a =>
+			{
+				var httpClientFactory = a.GetService<IHttpClientFactory>();
+				var httpClient = httpClientFactory.CreateClient(APIClientName);
+				var logger = a.GetService<ILogger<{{Name.PascalCase}}>>();
+				return new {{Name.PascalCase}}(baseUrl, httpClient, logger);
+			});
+		}
+	}
+}

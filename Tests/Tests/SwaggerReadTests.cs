@@ -22,5 +22,12 @@ namespace Tests.Tests
 			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");
 			Assert.IsTrue(result.Success, result.Message);
 		}
+
+		[TestMethod]
+		public async Task RunGeneratorAgainst2_0Json()
+		{
+			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");
+			Assert.IsTrue(result.Success, result.Message);
+		}
 	}
 }
