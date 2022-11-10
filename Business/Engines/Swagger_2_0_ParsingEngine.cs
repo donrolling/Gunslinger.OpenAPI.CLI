@@ -1,4 +1,5 @@
-﻿using Business.Factories;
+﻿using Business.Extensions;
+using Business.Factories;
 using Domain;
 using Domain.Configuration;
 using Domain.Enums;
@@ -16,7 +17,7 @@ namespace Business.Engines
 		public SupportedDocTypes SupportedDocTypes => SupportedDocTypes.Swagger_2_0;
 
 		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
-		
+
 		private ILogger<OpenApiParsingEngine> _logger;
 
 		public Swagger_2_0_ParsingEngine(
@@ -50,7 +51,7 @@ namespace Business.Engines
 					}
 					else
 					{
-						AddParameters(verb, jsonParameters, context);
+						AddParameters(verb, jsonParameters, context, document);
 					}
 					AddResponseObjects(jsonVerb, verb, models);
 					route.Verbs.Add(verb);
@@ -67,7 +68,7 @@ namespace Business.Engines
 			return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
 		}
 
-		private void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context)
+		private void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context, JsonDocument document)
 		{
 			// route or querystring parameters
 			foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
@@ -76,12 +77,16 @@ namespace Business.Engines
 				var property = new Property();
 				var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
 				property.Name = NameFactory.Create(parameterName);
-				var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();
-				var openApiType = GetOpenApiType(propertyProperties);
-				property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
-				var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-				property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
-				verb.Parameters.Add(property);
+				var x = parameter.FirstOrDefault(a => a.Name.Equals("schema", Comparison));
+				if (x.Value.ValueKind != JsonValueKind.Undefined)
+				{
+					var propertyProperties = x.Value.EnumerateObject();
+					var openApiType = GetOpenApiType(propertyProperties, document);
+					property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
+					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
+					verb.Parameters.Add(property);
+				}
 			}
 		}
 
@@ -115,29 +120,23 @@ namespace Business.Engines
 			{
 				return;
 			}
-			var twoHundredContentResponse = responses
-										.Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.StartsWith("20", Comparison)).Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.Equals("content", Comparison));
+			var twoHundredContentResponse = responses.Value.EnumerateObject()
+										.FirstOrDefault(a => a.Name.StartsWith("20", Comparison));
 			if (twoHundredContentResponse.Value.ValueKind == JsonValueKind.Undefined)
 			{
 				return;
 			}
 			var responseObject = twoHundredContentResponse
 						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
-						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
-						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
+						.FirstOrDefault(a => a.Name.Equals("schema", Comparison));
 			if (responseObject.Value.ValueKind == JsonValueKind.Undefined)
 			{
 				return;
 			}
-			var responseObjectString = responseObject.Value.ToString();
-			if (!string.IsNullOrEmpty(responseObjectString))
+			var reference = responseObject.Value.Get("$ref");
+			if (reference.HasValue)
 			{
-				var responseObjectName = responseObjectString.Split('/').Last();
+				var responseObjectName = reference.Value.ToString().Replace("#/definitions/", "");
 				verb.ResponseObject = models.FirstOrDefault(a => a.Name.Value.Equals(responseObjectName, Comparison));
 			}
 		}
@@ -145,57 +144,103 @@ namespace Business.Engines
 		private List<Model> GetModels(JsonDocument document, GenerationContext context)
 		{
 			var result = new List<Model>();
-			var componentsNode = document.RootElement.EnumerateObject()
-								.FirstOrDefault(a => a.Name.Equals("components", Comparison));
-			if (componentsNode.Value.ValueKind == JsonValueKind.Undefined)
+			var definitionsNode = document.RootElement.EnumerateObject()
+								.FirstOrDefault(a => a.Name.Equals("definitions", Comparison));
+			if (definitionsNode.Value.ValueKind == JsonValueKind.Undefined)
 			{
 				return result;
 			}
-			var schemaNode = componentsNode
-								.Value.EnumerateObject()
-								.FirstOrDefault(a => a.Name.Equals("schemas", Comparison));
-			if (schemaNode.Value.ValueKind == JsonValueKind.Undefined)
+			foreach (var component in definitionsNode.Value.EnumerateObject())
 			{
-				return result;
-			}
-			foreach (var component in schemaNode.Value.EnumerateObject())
-			{
-				var model = new Model();
-				model.Name = NameFactory.Create(component.Name);
-				var modelProps = component.Value.EnumerateObject();
-				model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
-				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
-				foreach (var jsonProperty in properties.EnumerateObject())
+				var modelInfo = GetModelInfo(component);
+				if (modelInfo.Properties.ValueKind == JsonValueKind.Undefined)
 				{
-					var property = new Property();
-					property.Name = NameFactory.Create(jsonProperty.Name);
-					var propertyProperties = jsonProperty.Value.EnumerateObject();
-					var openApiType = GetOpenApiType(propertyProperties);
-					property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
-					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
-					model.Properties.Add(property);
+					modelInfo.Model.TypeName = "dynmaic";
 				}
-				result.Add(model);
+				else
+				{
+					foreach (var jsonProperty in modelInfo.Properties.EnumerateObject())
+					{
+						var property = new Property();
+						property.Name = NameFactory.Create(jsonProperty.Name);
+						var propertyProperties = jsonProperty.Value.EnumerateObject();
+						property.IsNullable = modelInfo.RequiredProperties.Any(a => string.Equals(modelInfo.Model.Name, StringComparison.InvariantCultureIgnoreCase));
+						if (jsonProperty.Value.ValueKind == JsonValueKind.Object && propertyProperties.Count() == 0)
+						{
+							property.Type = "dynmaic";
+							modelInfo.Model.Properties.Add(property);
+						}
+						else
+						{
+							var openApiType = GetOpenApiType(propertyProperties, document);
+							property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
+							modelInfo.Model.Properties.Add(property);
+						}
+					}
+				}
+				result.Add(modelInfo.Model);
 			}
 			return result;
 		}
 
-		private OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties)
+		private static (Model Model, JsonElement Properties, IEnumerable<string> RequiredProperties) GetModelInfo(JsonProperty component)
 		{
-			var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-			// this won't explode if it is null
-			var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
-			var nullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-
-			return new OpenApiType
+			var model = new Model();
+			model.Name = NameFactory.Create(component.Name);
+			var modelProps = component.Value.EnumerateObject();
+			model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
+			var properties = modelProps.FirstOrDefault(a => a.Name.Equals("properties", Comparison)).Value;
+			try
 			{
-				Type = type,
-				Format = typeFormat,
-				Nullable = string.IsNullOrWhiteSpace(nullable)
-					? false
-					: BooleanConverter.ReferenceEquals(nullable, false)
-			};
+				var requiredPropertiesValue = modelProps.FirstOrDefault(a => a.Name.Equals("required", Comparison));
+				var requiredProperties = requiredPropertiesValue.Value.ValueKind == JsonValueKind.Undefined
+					? new List<string>()
+					: requiredPropertiesValue.Value.EnumerateArray().Select(a => a.ToString());
+				return (model, properties, requiredProperties);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+
+		private OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties, JsonDocument document)
+		{
+			try
+			{
+				var reference = propertyProperties.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
+				var type = reference.Value.ValueKind == JsonValueKind.Undefined
+					? propertyProperties.FirstOrDefault(a => a.Name.Equals("type", Comparison)).Value.ToString()
+					: reference.Value.ToString();
+				var typeFormat = string.Empty;
+				var nullable = "true";
+				// this won't explode if it is null
+				if (type.Contains("#/definitions/"))
+				{
+					type = type.Replace("#/definitions/", "");
+					typeFormat = "object";
+					//var x = document.RootElement.Get("definitions")?.Get(type)?.Get("properties").Value.EnumerateObject();
+					//propertyProperties = x.Value;
+				}
+				else
+				{
+					typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
+					nullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
+				}
+
+				return new OpenApiType
+				{
+					Type = type,
+					Format = typeFormat,
+					Nullable = string.IsNullOrWhiteSpace(nullable)
+						? false
+						: BooleanConverter.ReferenceEquals(nullable, false)
+				};
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
 		}
 	}
 }
