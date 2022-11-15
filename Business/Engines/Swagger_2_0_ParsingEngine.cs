@@ -38,7 +38,7 @@ namespace Business.Engines
 				var route = new Route();
 				var pathName = pathNode.Name.Replace("/api/", "").Replace("/", "_");
 				route.Name = NameFactory.Create(pathName);
-				route.Path = pathNode.Name;
+				route.Path = SafeNameFactory.MakePathSafe(pathNode.Name);
 				var jsonVerbs = pathNode.Value.EnumerateObject();
 				foreach (var jsonVerb in jsonVerbs)
 				{
@@ -99,21 +99,12 @@ namespace Business.Engines
 				var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
 				property.Name = NameFactory.Create(parameterName);
 				var type = jsonParameter.Get("type");
+				var _in = jsonParameter.Get("in").Value.ToString();
 				if (type != null)
 				{
 					var openApiType = GetOpenApiType(jsonParameter, type.Value.ToString(), document);
 					property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
 					property.IsNullable = openApiType.Nullable;
-
-					var _in = jsonParameter.Get("in").Value.ToString();
-					if (_in == "path")
-					{
-						verb.PathParameters.Add(property);
-					}
-					else
-					{
-						verb.Parameters.Add(property);
-					}
 				}
 				else
 				{
@@ -124,8 +115,15 @@ namespace Business.Engines
 						var openApiType = GetOpenApiType(propertyProperties, document);
 						property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
 						property.IsNullable = openApiType.Nullable;
-						verb.Parameters.Add(property);
 					}
+				}
+				if (_in == "path")
+				{
+					verb.PathParameters.Add(property);
+				}
+				else
+				{
+					verb.Parameters.Add(property);
 				}
 			}
 		}

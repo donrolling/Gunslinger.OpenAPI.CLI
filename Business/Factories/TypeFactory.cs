@@ -6,12 +6,13 @@ namespace Business.Factories
 	{
 		public static string Create(OpenApiType type, List<DataTypeTransformation> dataTypeTransformations)
 		{
-			var result = FindType(type, dataTypeTransformations);
-			if (result != null)
-			{
-				return result.DestinationType;
-			}
-			return string.IsNullOrEmpty(type.Format) ? type.Type : type.Format;
+			var _type = FindType(type, dataTypeTransformations);
+			var result = _type == null
+				? string.IsNullOrEmpty(type.Format)
+					? SafeNameFactory.MakeTypeSafe(type.Type)
+					: SafeNameFactory.MakeTypeSafe(type.Format)
+				: SafeNameFactory.MakeTypeSafe(_type.DestinationType);
+			return result;
 		}
 
 		private static DataTypeTransformation FindType(OpenApiType type, List<DataTypeTransformation> dataTypeTransformations)
@@ -52,12 +53,14 @@ namespace Business.Factories
 
 		public static List<DataTypeTransformation> GetStandardConfiguration()
 		{
+			//datetime
 			return new List<DataTypeTransformation>
 			{
 				new DataTypeTransformation
 				{
 					DataType = "boolean",
 					Format = "",
+					Nullable = false,
 					DestinationType = "bool"
 				},
 				new DataTypeTransformation
@@ -76,12 +79,31 @@ namespace Business.Factories
 				new DataTypeTransformation{
 					DataType = "string",
 					Format = "date-time",
+					Nullable = false,
 					DestinationType = "DateTime"
+				},
+				new DataTypeTransformation{
+					DataType = "string",
+					Format = "date-time",
+					Nullable = true,
+					DestinationType = "DateTime?"
 				},
 				new DataTypeTransformation {
 					DataType = "string",
 					Format = "password",
 					DestinationType = "string"
+				},
+				new DataTypeTransformation {
+					DataType = "file",
+					Format = "",
+					Nullable = false,
+					DestinationType = "byte[]"
+				},
+				new DataTypeTransformation {
+					DataType = "file",
+					Format = "",
+					Nullable = true,
+					DestinationType = "byte[]?"
 				},
 				new DataTypeTransformation {
 					DataType = "string",
@@ -91,6 +113,11 @@ namespace Business.Factories
 				new DataTypeTransformation {
 					DataType = "string",
 					Format = "date",
+					DestinationType = "DateTime"
+				},
+				new DataTypeTransformation {
+					DataType = "string",
+					Format = "date-time",
 					DestinationType = "DateTime"
 				},
 				new DataTypeTransformation {

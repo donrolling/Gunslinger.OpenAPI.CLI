@@ -44,6 +44,7 @@ namespace Business.Factories
 				generationContext.TypeConfiguration = TypeFactory.GetStandardConfiguration();
 			}
 			ReadTemplateText(generationContext);
+			SafeNameFactory.SetReservedNames(generationContext.ReservedNames);
 			return OperationResult.Ok(generationContext);
 		}
 

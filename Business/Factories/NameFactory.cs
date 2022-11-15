@@ -6,12 +6,10 @@ namespace Business.Factories
 {
 	public class NameFactory
 	{
-		private static Regex rgx = new Regex("[^a-zA-Z0-9 -]");
-		private static Regex safeRgx = new Regex("[-]");
 
 		public static Name Create(string name)
 		{
-			var scrubbedName = rgx.Replace(name, "");
+			var scrubbedName = SafeNameFactory.Scrub(name);
 			var _name = new Name
 			{
 				Value = name,
@@ -20,7 +18,7 @@ namespace Business.Factories
 				NameWithSpaces = name.UnCamelCase(),
 				UpperCase = name.ToUpper()
 			};
-			var safeName = safeRgx.Replace(scrubbedName, "");
+			var safeName = SafeNameFactory.MakeSafe(scrubbedName);
 			var _safeName = new Name
 			{
 				Value = safeName,

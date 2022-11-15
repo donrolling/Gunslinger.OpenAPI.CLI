@@ -3,7 +3,7 @@
 	"DataProviders": [
 		{
 			"Name": "Swagger",
-			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\swagger.json"
+			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\swagger.json"
 		}
 	],
 	"ReservedNames": [ "event" ],
@@ -13,7 +13,7 @@
 			"Name": "TestAPIClient",
 			"Namespace": "Client",
 			"InputRelativePath": "Client.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\TestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\TestAPIClient.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Domain",
@@ -29,7 +29,7 @@
 			"Name": "ITestAPIClient",
 			"Namespace": "Client",
 			"InputRelativePath": "ClientInterface.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\ITestAPIClient.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\ITestAPIClient.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -43,7 +43,7 @@
 			"Name": "TestAPIClient",
 			"Namespace": "Configuration",
 			"InputRelativePath": "ConfigurationHelper.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\Configuration\\ConfigurationHelper.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\Configuration\\ConfigurationHelper.cs",
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
@@ -56,7 +56,7 @@
 			"Name": "Models",
 			"Namespace": "Models",
 			"InputRelativePath": "Model.txt",
-			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\Models\\{entityName}.cs",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"System.Collections.Generic",

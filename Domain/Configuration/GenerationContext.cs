@@ -12,6 +12,8 @@ namespace Domain.Configuration
 
 		public string OutputDirectory { get; set; }
 
+		public List<string> ReservedNames { get; set; }
+
 		public string RootPath { get; set; }
 
 		[Required]
