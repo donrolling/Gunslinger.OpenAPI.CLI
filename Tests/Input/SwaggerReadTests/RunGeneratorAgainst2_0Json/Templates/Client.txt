@@ -27,17 +27,19 @@ namespace {{Namespace}}
             _logger = logger;
         }
 
-        {{#Data ~}}        
+        {{#Data ~}}
         {{#Routes ~}}
         {{#Verbs ~}}
-        {{#if RequestObjectIsEmpty ~}}
-        
+        {{#if RequestObjectIsEmpty ~}}        
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
-            var urlBuilder = GetUrl("{{../Path}}");
-            urlBuilder.Append("?");
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var urlBuilder = GetUrl(path);
             {{#Parameters}}
+            {{#if @first}}
+            urlBuilder.Append("?");
+            {{/if}}
             urlBuilder.Append("{{Name.Value}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
             {{#unless @last}}urlBuilder.Append("&");{{/unless}}
@@ -61,22 +63,24 @@ namespace {{Namespace}}
             }
             catch (Exception ex)
             {
-                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async - {ex.Message}";
                 _logger.LogError(message);
                 return OperationResult.Fail(message);
             }            
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
-            var urlBuilder = GetUrl("{{../Path}}");
-            urlBuilder.Append("?");
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var urlBuilder = GetUrl(path);
             {{#Parameters}}
+            {{#if @first}}
+            urlBuilder.Append("?");
+            {{/if}}
             urlBuilder.Append("{{Name.Value}}=");
             urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
             {{#unless @last}}urlBuilder.Append("&");{{/unless}}
             {{/Parameters}}
-            
             var url = urlBuilder.ToString().ToLower();
             try
             {
@@ -88,19 +92,19 @@ namespace {{Namespace}}
 				    {
                         try {
                             var content = await response.Content.ReadAsStringAsync();
-                            var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content, _options);
+                            var result = JsonSerializer.Deserialize<{{ResponseObject.Name.Safe.PascalCase}}>(content, _options);
                             return OperationResult.Ok(result);
                         }
                         catch(Exception ex)
                         {
                             var message = $"Error in response. Status {status}. Error: {ex.Message}";
                             _logger.LogError(message);
-                            return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                            return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
                         }
 				    }
                     else
                     {
-                        return OperationResult.Fail<{{../Name.PascalCase}}>($"Error - Status {status}");
+                        return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>($"Error - Status {status}");
                     }
 			    }
             }
@@ -108,7 +112,7 @@ namespace {{Namespace}}
             {
                 var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
                 _logger.LogError(message);
-                return OperationResult.Fail<{{ResponseObject.Name.PascalCase}}>(message);
+                return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
             }
         }
         {{/if ~}}
@@ -116,9 +120,10 @@ namespace {{Namespace}}
         {{else ~}}
 
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
-            var url = GetUrl("{{../Path}}").ToString().ToLower();
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var url = GetUrl(path);
             try
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
@@ -144,9 +149,10 @@ namespace {{Namespace}}
             }
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
-            var url = GetUrl("{{../Path}}").ToString().ToLower();
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var url = GetUrl(path);
             try
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
@@ -159,21 +165,21 @@ namespace {{Namespace}}
 				    {
                         try {
                             var content = await response.Content.ReadAsStringAsync();
-                            var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content, _options);
+                            var result = JsonSerializer.Deserialize<{{ResponseObject.Name.Safe.PascalCase}}>(content, _options);
 					        return OperationResult.Ok(result);
                         }
                         catch(Exception ex)
                         {
                             var message = $"Error in response. Status {status}. Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
                             _logger.LogError(message);
-                            return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                            return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
                         }
 				    }
                     else
                     {
                         var message = $"Warning - Unsuccessful Http Result - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - Status:{status}";
                         _logger.LogWarning(message);
-                        return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                        return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
                     }
 			    }
             }
@@ -181,7 +187,7 @@ namespace {{Namespace}}
             {
                 var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
                 _logger.LogError(message);
-                return OperationResult.Fail<{{../Name.PascalCase}}>(message);
+                return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
             }
         }
         {{/if ~}}

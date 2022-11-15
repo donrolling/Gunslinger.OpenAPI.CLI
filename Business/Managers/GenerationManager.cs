@@ -299,7 +299,7 @@ namespace Business.Managers
 		{
 			var outputRelativePath = template.OutputRelativePath;
 			var root = string.IsNullOrWhiteSpace(context.OutputDirectory) ? context.RootPath : context.OutputDirectory;
-			var path = $"{root}\\{outputRelativePath}".Replace(ConfigTemplateStrings.EntityName, item.Name.Value);
+			var path = $"{root}\\{outputRelativePath}".Replace(ConfigTemplateStrings.EntityName, item.Name.PascalCase);
 			var prepareDirectoryResult = _fileCreationEngine.PrepareOutputDirectory(path, template.DeleteAllItemsInOutputDirectory);
 			return prepareDirectoryResult.Success ? OperationResult.Ok(path) : OperationResult.Fail<string>(prepareDirectoryResult.Message);
 		}

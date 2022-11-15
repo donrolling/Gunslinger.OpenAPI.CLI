@@ -126,11 +126,6 @@ namespace Business.Factories
 				},
 				new DataTypeTransformation {
 					DataType = "number",
-					Format = "float",
-					DestinationType = "Float"
-				},
-				new DataTypeTransformation {
-					DataType = "number",
 					Format = "double",
 					DestinationType = "Double"
 				},
@@ -143,6 +138,30 @@ namespace Business.Factories
 					DataType = "integer",
 					Format = "int64",
 					DestinationType = "long"
+				},
+				new DataTypeTransformation {
+					DataType = "integer",
+					Format = "int16",
+					Nullable = true,
+					DestinationType = "int?"
+				},
+				new DataTypeTransformation {
+					DataType = "integer",
+					Format = "int16",
+					Nullable = false,
+					DestinationType = "int"
+				},
+				new DataTypeTransformation {
+					DataType = "number",
+					Format = "float",
+					Nullable = true,
+					DestinationType = "float?"
+				},
+				new DataTypeTransformation {
+					DataType = "number",
+					Format = "float",
+					Nullable = false,
+					DestinationType = "float"
 				},
 				new DataTypeTransformation {
 					DataType = "integer",

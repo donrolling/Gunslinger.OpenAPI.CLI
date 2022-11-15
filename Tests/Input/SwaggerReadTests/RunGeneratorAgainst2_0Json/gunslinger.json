@@ -17,6 +17,7 @@
 			"Imports": [
 				"Domain",
 				"Microsoft.Extensions.Logging",
+				"System.Collections.Generic",
 				"OutputTests.Client.Models",
 				"System.Text",
 				"System.Text.Json"
@@ -32,6 +33,7 @@
 			"DataProviderName": "Swagger",
 			"Imports": [
 				"Domain",
+				"System.Collections.Generic",
 				"OutputTests.Client.Models"
 			]
 		},
@@ -44,6 +46,7 @@
 			"DeleteAllItemsInOutputDirectory": false,
 			"DataProviderName": "Swagger",
 			"Imports": [
+				"System.Collections.Generic",
 				"Models"
 			]
 		},
@@ -55,6 +58,8 @@
 			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json\\Models\\{entityName}.cs",
 			"DataProviderName": "Swagger",
 			"Imports": [
+				"System.Collections.Generic",
+				"System.Text.Json.Serialization"
 			]
 		}
 	]

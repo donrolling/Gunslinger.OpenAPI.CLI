@@ -7,20 +7,17 @@
 		}
 	],
 	"TypeConfiguration": [
-
 		{
 			"DataType": "boolean",
 			"Format": "",
 			"DestinationType": "bool"
 		},
-
 		{
 			"DataType": "boolean",
 			"Format": "",
 			"Nullable": true,
 			"DestinationType": "bool?"
 		},
-
 		{
 			"DataType": "string",
 			"Format": "date",

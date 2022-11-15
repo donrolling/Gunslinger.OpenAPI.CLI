@@ -12,7 +12,7 @@
 
 	<PropertyGroup>
 		<PackageId>Gunslinger.OpenAPI.CLI</PackageId>
-		<PackageVersion>1.1.0</PackageVersion>
+		<PackageVersion>1.2.0</PackageVersion>
 		<Title>Gunslinger OpenAPI CLI</Title>
 		<Authors>Don Rolling</Authors>
 		<Owners>Don Rolling</Owners>

@@ -4,10 +4,19 @@ using {{.}};
 
 namespace {{Namespace}} 
 {
-    public class {{Name.Value}} 
+    public class {{Name.Safe.PascalCase}} 
     {
         {{#Properties}}
-        public {{{Type}}} {{Name.PascalCase}} { get; set; }
+        {{#if HasSameNameAsType}}
+        /// <summary>
+        /// This property has been renamed to avoid a naming collision with the enclosing class
+        /// </summary>
+        [JsonPropertyName("{{Name.Value}}")]
+        public {{{Type}}} {{Name.CollisionSafe.PascalCase}} { get; set; }
+        {{else}}
+        [JsonPropertyName("{{Name.Value}}")]
+        public {{{Type}}} {{Name.Safe.PascalCase}} { get; set; }
+        {{/if }}
 
         {{/Properties}}
     }

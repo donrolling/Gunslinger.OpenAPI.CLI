@@ -65,6 +65,22 @@ namespace Tests.Tests
 		}
 
 		[TestMethod]
+		public void VerifyFloatConversion()
+		{
+			var openApiType = new OpenApiType { Type = "number", Format = "float", Nullable = false };
+			var result = TypeFactory.Create(openApiType, TypeFactory.GetStandardConfiguration());
+			Assert.AreEqual("float", result);
+		}
+
+		[TestMethod]
+		public void VerifyNullableFloatConversion()
+		{
+			var openApiType = new OpenApiType { Type = "number", Format = "float", Nullable = true };
+			var result = TypeFactory.Create(openApiType, TypeFactory.GetStandardConfiguration());
+			Assert.AreEqual("float?", result);
+		}
+
+		[TestMethod]
 		public void VerifyNullableBooleanConversion()
 		{
 			var openApiType = new OpenApiType { Type = "boolean", Format = "", Nullable = true };
