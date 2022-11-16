@@ -2,7 +2,7 @@
 
 The Gunslinger templating engine is built on top of the [Handlebars](https://github.com/Handlebars-Net/Handlebars.Net) templating system, which is an enhancement of the Logic-less [Mustache](https://mustache.github.io/) templating system. 
 
-This is the OpenAPI version of Gunslinger, which means it is designed to generate Client SDKs from OpenAPI 3.0.1 schemas. Beginning in version 2.0 there is support for Swagger 2.0. I've provided some new additional templates and configuration options that can be found [here]().
+This is the OpenAPI version of Gunslinger, which means it is designed to generate Client SDKs from OpenAPI 3.0.1 schemas. Beginning in version 2.0 there is support for Swagger 2.0. I've provided some new additional templates and configuration options that can be found [here](https://github.com/donrolling/Gunslinger.OpenAPI.CLI/tree/main/Examples/GenerateAPI).
 
 I've continued in the tradition of naming this tool after a style of facial hair.
 
