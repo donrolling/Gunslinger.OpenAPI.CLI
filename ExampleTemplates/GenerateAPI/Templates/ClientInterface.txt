@@ -1,0 +1,29 @@
+﻿{{#Imports}}
+using {{.}};
+{{/Imports}}
+
+namespace {{Namespace}} 
+{
+    public interface {{Name.PascalCase}}
+    {
+        {{#Data ~}}        
+        {{#Routes ~}}
+        {{#Verbs ~}}
+        {{#if RequestObjectIsEmpty ~}}        
+        {{#if ResponseObjectIsEmpty}}
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}});
+        {{else}}
+        Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}});
+        {{/if ~}}
+        {{else ~}}
+        {{#if ResponseObjectIsEmpty}}
+        Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}});
+        {{else}}
+        Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}});
+        {{/if ~}}
+        {{/if}}        
+        {{/Verbs ~}}
+        {{/Routes ~}}
+        {{/Data}}
+    }
+}

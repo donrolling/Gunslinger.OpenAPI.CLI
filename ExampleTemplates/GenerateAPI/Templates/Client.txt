@@ -1,0 +1,208 @@
+﻿{{#Imports}}
+using {{.}};
+{{/Imports}}
+
+namespace {{Namespace}} 
+{
+    public class {{Name.PascalCase}} : I{{Name.PascalCase}}
+    {
+        private readonly string _baseUrl;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<{{Name.PascalCase}}> _logger;
+
+		private static readonly JsonSerializerOptions _options;
+
+        static {{Name.PascalCase}}()
+        { 
+            _options = new JsonSerializerOptions
+		    {
+			    PropertyNameCaseInsensitive = true
+		    };
+        }
+
+        public {{Name.PascalCase}}(string baseUrl, HttpClient httpClient, ILogger<{{Name.PascalCase}}> logger)
+        {
+            _baseUrl = baseUrl;
+            _httpClient = httpClient;
+            _logger = logger;
+        }
+
+        {{#Data ~}}
+        {{#Routes ~}}
+        {{#Verbs ~}}
+        {{#if RequestObjectIsEmpty ~}}        
+        {{#if ResponseObjectIsEmpty}}
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        {
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var urlBuilder = GetUrl(path);
+            {{#Parameters}}
+            {{#if @first}}
+            urlBuilder.Append("?");
+            {{/if}}
+            urlBuilder.Append("{{Name.Value}}=");
+            urlBuilder.Append({{Name.Safe.LowerCamelCase}}.ToString());
+            {{#unless @last}}urlBuilder.Append("&");{{/unless}}
+            {{/Parameters}}
+            var url = urlBuilder.ToString();
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+				    var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                    var status = (int)response.StatusCode;
+                    if (response.IsSuccessStatusCode)
+				    {
+					    return OperationResult.Ok();
+				    }
+                    else 
+                    {
+                        return OperationResult.Fail($"Error - Status {status}");
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail(message);
+            }            
+        }
+        {{else}}
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        {
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var urlBuilder = GetUrl(path);
+            {{#Parameters}}
+            {{#if @first}}
+            urlBuilder.Append("?");
+            {{/if}}
+            urlBuilder.Append("{{Name.Value}}=");
+            urlBuilder.Append({{Name.Safe.LowerCamelCase}}.ToString());
+            {{#unless @last}}urlBuilder.Append("&");{{/unless}}
+            {{/Parameters}}
+            var url = urlBuilder.ToString().ToLower();
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+				    var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                    var status = (int)response.StatusCode;
+                    if (response.IsSuccessStatusCode)
+				    {
+                        try {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonSerializer.Deserialize<{{ResponseObject.Name.Safe.PascalCase}}>(content, _options);
+                            return OperationResult.Ok(result);
+                        }
+                        catch(Exception ex)
+                        {
+                            var message = $"Error in response. Status {status}. Error: {ex.Message}";
+                            _logger.LogError(message);
+                            return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
+                        }
+				    }
+                    else
+                    {
+                        return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>($"Error - Status {status}");
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
+            }
+        }
+        {{/if ~}}
+
+        {{else ~}}
+
+        {{#if ResponseObjectIsEmpty}}
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        {
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var url = GetUrl(path);
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+                    var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
+				    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+				    var response = await _httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+				    {
+					    return OperationResult.Ok();
+				    }
+                    else
+                    {
+					    return OperationResult.Fail();
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail(message);
+            }
+        }
+        {{else}}
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        {
+            var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
+            var url = GetUrl(path);
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+                    var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
+				    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+				    var response = await _httpClient.SendAsync(request);
+                    var status = (int)response.StatusCode;
+                    if (response.IsSuccessStatusCode)
+				    {
+                        try {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonSerializer.Deserialize<{{ResponseObject.Name.Safe.PascalCase}}>(content, _options);
+					        return OperationResult.Ok(result);
+                        }
+                        catch(Exception ex)
+                        {
+                            var message = $"Error in response. Status {status}. Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                            _logger.LogError(message);
+                            return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
+                        }
+				    }
+                    else
+                    {
+                        var message = $"Warning - Unsuccessful Http Result - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - Status:{status}";
+                        _logger.LogWarning(message);
+                        return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail<{{ResponseObject.Name.Safe.PascalCase}}>(message);
+            }
+        }
+        {{/if ~}}
+
+        {{/if}}
+        
+        {{/Verbs ~}}
+        {{/Routes ~}}
+
+        {{/Data}}
+        private StringBuilder GetUrl(string path) 
+        {
+            var urlBuilder = new StringBuilder();
+            urlBuilder.Append(_baseUrl != null ? _baseUrl.TrimEnd('/') : "").Append(path);
+            return urlBuilder;
+        }
+    }
+}

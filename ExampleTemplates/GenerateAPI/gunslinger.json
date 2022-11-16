@@ -1,0 +1,67 @@
+{
+	"TemplateDirectory": "Templates",
+	"DataProviders": [
+		{
+			"Name": "Swagger",
+			"Location": "Input\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\swagger.json"
+		}
+	],
+	"ReservedNames": [ "event" ],
+	"Templates": [
+		{
+			"Type": "Setup",
+			"Name": "TestAPIClient",
+			"Namespace": "Client",
+			"InputRelativePath": "Client.txt",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\TestAPIClient.cs",
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"Domain",
+				"Microsoft.Extensions.Logging",
+				"System.Collections.Generic",
+				"OutputTests.Client.Models",
+				"System.Text",
+				"System.Text.Json"
+			]
+		},
+		{
+			"Type": "Setup",
+			"Name": "ITestAPIClient",
+			"Namespace": "Client",
+			"InputRelativePath": "ClientInterface.txt",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\ITestAPIClient.cs",
+			"DeleteAllItemsInOutputDirectory": false,
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"Domain",
+				"System.Collections.Generic",
+				"OutputTests.Client.Models"
+			]
+		},
+		{
+			"Type": "Setup",
+			"Name": "TestAPIClient",
+			"Namespace": "Configuration",
+			"InputRelativePath": "ConfigurationHelper.txt",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\Configuration\\ConfigurationHelper.cs",
+			"DeleteAllItemsInOutputDirectory": false,
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"System.Collections.Generic",
+				"Models"
+			]
+		},
+		{
+			"Type": "Model",
+			"Name": "Models",
+			"Namespace": "Models",
+			"InputRelativePath": "Model.txt",
+			"OutputRelativePath": "Output\\SwaggerReadTests\\RunGeneratorAgainst2_0Json_SecurePayments\\Models\\{entityName}.cs",
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"System.Collections.Generic",
+				"System.Text.Json.Serialization"
+			]
+		}
+	]
+}
