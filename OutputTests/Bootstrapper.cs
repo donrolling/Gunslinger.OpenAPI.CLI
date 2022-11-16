@@ -1,7 +1,7 @@
-﻿using Enterprise.Configuration.Extensions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OutputTests.Client.Configuration;
+using OutputTests.Extensions;
 using OutputTests.Models;
 using Serilog;
 
