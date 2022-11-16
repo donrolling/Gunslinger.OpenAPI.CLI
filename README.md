@@ -6,7 +6,7 @@ This is the OpenAPI version of Gunslinger, which means it is designed to generat
 
 I've continued in the tradition of naming this tool after a style of facial hair.
 
-![Gunslinger Beard](https://user-images.githubusercontent.com/1778167/169899048-b905a62e-ad65-418b-a64e-7778f2364505.png)
+![Gunslinger Beard](https://user-images.githubusercontent.com/1778167/183230207-98d4d81b-b436-42ed-89f9-97983d6adf2f.png)
 
 The primary idea is that a json config file and some templates can provide everything you need to generate massive portions of your project in 
 a very flexible way.
