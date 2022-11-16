@@ -8,12 +8,13 @@ namespace {{Namespace}}
 	{
 		private const string APIClientName = "{{Name.PascalCase}}";
 
-		public static void Configure{{Name.PascalCase}}(this IServiceCollection services, string baseUrl)
+		public static void Configure{{Name.PascalCase}}(this IServiceCollection services, string baseUrl, string authToken)
 		{
 			services.AddHttpClient(APIClientName, httpClient =>
 			{
 				httpClient.DefaultRequestHeaders.Accept.Clear();
 				httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 			});
 			services.AddTransient<I{{Name.PascalCase}}>(a =>
 			{

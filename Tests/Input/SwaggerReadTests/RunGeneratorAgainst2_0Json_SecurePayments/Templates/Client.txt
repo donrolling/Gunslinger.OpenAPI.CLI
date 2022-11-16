@@ -78,7 +78,7 @@ namespace {{Namespace}}
             urlBuilder.Append("?");
             {{/if}}
             urlBuilder.Append("{{Name.Value}}=");
-            urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
+            urlBuilder.Append({{Name.Safe.LowerCamelCase}}.ToString());
             {{#unless @last}}urlBuilder.Append("&");{{/unless}}
             {{/Parameters}}
             var url = urlBuilder.ToString().ToLower();
