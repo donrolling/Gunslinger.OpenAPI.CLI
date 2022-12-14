@@ -33,7 +33,7 @@ namespace {{Namespace}}
         {{#if RequestObjectIsEmpty ~}}
         
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
@@ -67,7 +67,7 @@ namespace {{Namespace}}
             }            
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{Type}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");

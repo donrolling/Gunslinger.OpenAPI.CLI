@@ -32,7 +32,7 @@ namespace {{Namespace}}
         {{#Verbs ~}}
         {{#if RequestObjectIsEmpty ~}}        
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
             var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
             var urlBuilder = GetUrl(path);
@@ -69,7 +69,7 @@ namespace {{Namespace}}
             }            
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
             var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
             var urlBuilder = GetUrl(path);
@@ -120,7 +120,7 @@ namespace {{Namespace}}
         {{else ~}}
 
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
             var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
             var url = GetUrl(path);
@@ -149,7 +149,7 @@ namespace {{Namespace}}
             }
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{Type}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
+        public async Task<OperationResult<{{ResponseObject.Name.Safe.PascalCase}}>> {{Name.PascalCase}}{{../Name.Safe.PascalCase}}Async({{#PathParameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/PathParameters ~}}{{#if PathParametersAreNotEmpty}}{{#if ParametersAreNotEmpty}}, {{/if}}{{/if ~}}{{#Parameters}}{{{Type}}} {{Name.Safe.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters ~}})
         {
             var path = {{#if PathParametersAreNotEmpty}}$"{{../Path}}"{{/if}}{{#if PathParametersAreEmpty}}"{{../Path}}"{{/if}};
             var url = GetUrl(path);
