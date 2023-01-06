@@ -8,7 +8,7 @@ namespace Domain.Configuration
 		[Option('p', "PathToConfig", Required = false, HelpText = "Use to set config path.")]
 		public string ConfigPath { get; set; }
 
-		[Usage(ApplicationAlias = "gs")]
+		[Usage(ApplicationAlias = "gsoa")]
 		public static IEnumerable<Example> Examples
 		{
 			get

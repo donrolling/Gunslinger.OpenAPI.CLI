@@ -4,7 +4,6 @@ using Domain.Configuration;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
-using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Text.Json;
@@ -18,47 +17,13 @@ namespace Business.Engines
 
 		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
 
-		private ILogger<OpenApiParsingEngine> _logger;
+		private readonly ILogger<OpenApiParsingEngine> _logger;
 
 		public OpenApiParsingEngine(
 			ILogger<OpenApiParsingEngine> logger
 		)
 		{
 			_logger = logger;
-		}
-
-		public List<Route> GetPaths(JsonDocument document, List<Model> models, GenerationContext context)
-		{
-			var result = new List<Route>();
-			var pathsNode = document.RootElement.EnumerateObject()
-								.First(a => a.Name.Equals("paths", Comparison));
-
-			foreach (var pathNode in pathsNode.Value.EnumerateObject())
-			{
-				var route = new Route();
-				var pathName = pathNode.Name.Replace("/api/", "").Replace("/", "_");
-				route.Name = NameFactory.Create(pathName);
-				route.Path = pathNode.Name;
-				var jsonVerbs = pathNode.Value.EnumerateObject();
-				foreach (var jsonVerb in jsonVerbs)
-				{
-					var verb = new Verb();
-					verb.Name = NameFactory.Create(jsonVerb.Name);
-					var jsonParameters = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("parameters", Comparison));
-					if (jsonParameters.Value.ValueKind == JsonValueKind.Undefined)
-					{
-						AddRequestObjects(jsonVerb, verb, models);
-					}
-					else
-					{
-						AddParameters(verb, jsonParameters, context);
-					}
-					AddResponseObjects(jsonVerb, verb, models, context);
-					route.Verbs.Add(verb);
-				}
-				result.Add(route);
-			}
-			return result;
 		}
 
 		public OperationResult<OpenApiResult> Parse(JsonDocument document, GenerationContext context)
@@ -68,7 +33,7 @@ namespace Business.Engines
 			return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
 		}
 
-		private void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context)
+		private static void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context)
 		{
 			// route or querystring parameters
 			foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
@@ -86,7 +51,7 @@ namespace Business.Engines
 			}
 		}
 
-		private void AddRequestObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
+		private static void AddRequestObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
 		{
 			var requestBody = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("requestBody", Comparison));
 			if (requestBody.Value.ValueKind == JsonValueKind.Undefined)
@@ -109,7 +74,7 @@ namespace Business.Engines
 			}
 		}
 
-		private void AddResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models, GenerationContext context)
+		private static void AddResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models, GenerationContext context)
 		{
 			var responses = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("responses", Comparison));
 			if (responses.Value.ValueKind == JsonValueKind.Undefined)
@@ -156,7 +121,7 @@ namespace Business.Engines
 			}
 		}
 
-		private List<Model> GetModels(JsonDocument document, GenerationContext context)
+		private static List<Model> GetModels(JsonDocument document, GenerationContext context)
 		{
 			var result = new List<Model>();
 			var componentsNode = document.RootElement.EnumerateObject()
@@ -195,21 +160,54 @@ namespace Business.Engines
 			return result;
 		}
 
-		private OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties)
+		private static OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties)
 		{
 			var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
 			// this won't explode if it is null
 			var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
 			var nullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
-
 			return new OpenApiType
 			{
 				Type = type,
 				Format = typeFormat,
 				Nullable = string.IsNullOrWhiteSpace(nullable)
 					? false
-					: BooleanConverter.ReferenceEquals(nullable, false)
+					: BooleanConverter.ReferenceEquals(nullable, "false")
 			};
+		}
+
+		private static List<Route> GetPaths(JsonDocument document, List<Model> models, GenerationContext context)
+		{
+			var result = new List<Route>();
+			var pathsNode = document.RootElement.EnumerateObject()
+								.First(a => a.Name.Equals("paths", Comparison));
+
+			foreach (var pathNode in pathsNode.Value.EnumerateObject())
+			{
+				var route = new Route();
+				var pathName = pathNode.Name.Replace("/api/", "").Replace("/", "_");
+				route.Name = NameFactory.Create(pathName);
+				route.Path = pathNode.Name;
+				var jsonVerbs = pathNode.Value.EnumerateObject();
+				foreach (var jsonVerb in jsonVerbs)
+				{
+					var verb = new Verb();
+					verb.Name = NameFactory.Create(jsonVerb.Name);
+					var jsonParameters = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("parameters", Comparison));
+					if (jsonParameters.Value.ValueKind == JsonValueKind.Undefined)
+					{
+						AddRequestObjects(jsonVerb, verb, models);
+					}
+					else
+					{
+						AddParameters(verb, jsonParameters, context);
+					}
+					AddResponseObjects(jsonVerb, verb, models, context);
+					route.Verbs.Add(verb);
+				}
+				result.Add(route);
+			}
+			return result;
 		}
 	}
 }

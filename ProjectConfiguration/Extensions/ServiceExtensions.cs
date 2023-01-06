@@ -29,12 +29,12 @@ namespace ProjectConfiguration.Extensions
 				.Bind(section)
 				.Validate((item) =>
 					{
-						var validationResult = ValidationUtility.ValidateObject(item);
-						if (!validationResult.Success)
+						var (Success, Message) = ValidationUtility.ValidateObject(item);
+						if (!Success)
 						{
-							throw new Exception(validationResult.Message);
+							throw new Exception(Message);
 						}
-						return validationResult.Success;
+						return Success;
 					},
 					message
 				);
@@ -49,14 +49,14 @@ namespace ProjectConfiguration.Extensions
 		{
 			if (item == null)
 			{
-				throw new ArgumentNullException("Item cannot be null.");
+				throw new ArgumentNullException($"{nameof(item)} cannot be null.");
 			}
-			var validationResult = ValidationUtility.ValidateObject(item);
-			if (!validationResult.Success)
+			var (Success, Message) = ValidationUtility.ValidateObject(item);
+			if (!Success)
 			{
-				throw new Exception(validationResult.Message);
+				throw new Exception(Message);
 			}
-			if (!validationResult.Success)
+			if (!Success)
 			{
 				throw new ArgumentException("Item was not valid.");
 			}

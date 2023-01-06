@@ -1,4 +1,6 @@
-﻿using CommandLine;
+﻿using System.Reflection;
+using System.Diagnostics;
+using CommandLine;
 using Domain;
 using Domain.Configuration;
 using Domain.Interfaces;
@@ -11,6 +13,7 @@ using Options = Domain.Configuration.Options;
 var configuration = Bootstrapper.GetHostConfiguration(AppDomain.CurrentDomain.BaseDirectory);
 using (var scope = configuration.Host.Services.CreateScope())
 {
+	var version = GetVersion();
 	var services = scope.ServiceProvider;
 	var logger = services.GetRequiredService<ILogger<Program>>();
 	var generationManager = services.GetRequiredService<IGenerationManager>();
@@ -24,7 +27,7 @@ using (var scope = configuration.Host.Services.CreateScope())
 
 	var commandSettings = commandSettingsResult.Result;
 	var commandSettingsJson = JsonSerializer.Serialize(commandSettings);
-	var configurationMessage = $"Command Settings:{commandSettingsJson}";
+	var configurationMessage = $"Version:{version}{Environment.NewLine}Command Settings:{Environment.NewLine}{commandSettingsJson}";
 	logger.LogInformation(configurationMessage);
 
 	var result = await generationManager.GenerateAsync(commandSettings);
@@ -36,10 +39,17 @@ using (var scope = configuration.Host.Services.CreateScope())
 	{
 		logger.LogError("Model generation failed.");
 	}
-	
+
 	logger.LogInformation(result.Message);
 	// this is required because serilog doesn't flush messages quite fast enough if you don't do this.
 	Thread.Sleep(TimeSpan.FromSeconds(1));
+}
+
+static string GetVersion()
+{
+	var assembly = Assembly.GetExecutingAssembly();
+	var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+	return fvi.FileVersion;
 }
 
 static OperationResult<CommandSettings> GetOptions(string[] args, ILogger logger)

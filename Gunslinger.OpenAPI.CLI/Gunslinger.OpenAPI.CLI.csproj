@@ -9,10 +9,14 @@
 		<ToolCommandName>gsoa</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
-
+	
+	<PropertyGroup>
+		<Version>3.0.0</Version>
+	</PropertyGroup>
+	
 	<PropertyGroup>
 		<PackageId>Gunslinger.OpenAPI.CLI</PackageId>
-		<PackageVersion>2.0.0</PackageVersion>
+		<PackageVersion>3.0.0</PackageVersion>
 		<Title>Gunslinger OpenAPI CLI</Title>
 		<Authors>Don Rolling</Authors>
 		<Owners>Don Rolling</Owners>
@@ -69,6 +73,10 @@
 		<None Update="logo.png" Pack="true" PackagePath="">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="nupkg\" />
 	</ItemGroup>
 
 </Project>
