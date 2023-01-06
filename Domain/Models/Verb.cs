@@ -17,11 +17,15 @@
 		public bool PathParametersAreNotEmpty { get => PathParameters != null && PathParameters.Any(); }
 
 		public Model RequestObject { get; set; }
-		
+
 		public bool RequestObjectIsEmpty { get => RequestObject == null; }
-		
+
 		public Model ResponseObject { get; set; }
-		
+
+		public bool RequestTypeIsEmpty { get => ResponseType == null; }
+
+		public string ResponseType { get; set; }
+
 		public bool ResponseObjectIsEmpty { get => ResponseObject == null; }
 	}
 }

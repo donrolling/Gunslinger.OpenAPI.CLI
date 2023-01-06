@@ -4,6 +4,7 @@ using Domain.Configuration;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
+using HandlebarsDotNet;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Text.Json;
@@ -14,9 +15,9 @@ namespace Business.Engines
 	public class OpenApiParsingEngine : IParsingEngine
 	{
 		public SupportedDocTypes SupportedDocTypes => SupportedDocTypes.OpenAPI_3_0;
-		
+
 		private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
-		
+
 		private ILogger<OpenApiParsingEngine> _logger;
 
 		public OpenApiParsingEngine(
@@ -52,7 +53,7 @@ namespace Business.Engines
 					{
 						AddParameters(verb, jsonParameters, context);
 					}
-					AddResponseObjects(jsonVerb, verb, models);
+					AddResponseObjects(jsonVerb, verb, models, context);
 					route.Verbs.Add(verb);
 				}
 				result.Add(route);
@@ -108,7 +109,7 @@ namespace Business.Engines
 			}
 		}
 
-		private void AddResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models)
+		private void AddResponseObjects(JsonProperty jsonVerb, Verb verb, List<Model> models, GenerationContext context)
 		{
 			var responses = jsonVerb.Value.EnumerateObject().FirstOrDefault(a => a.Name.Equals("responses", Comparison));
 			if (responses.Value.ValueKind == JsonValueKind.Undefined)
@@ -117,12 +118,14 @@ namespace Business.Engines
 			}
 			var twoHundredContentResponse = responses
 										.Value.EnumerateObject()
-										.FirstOrDefault(a => a.Name.StartsWith("20", Comparison)).Value.EnumerateObject()
+										.FirstOrDefault(a => a.Name.StartsWith("20", Comparison))
+										.Value.EnumerateObject()
 										.FirstOrDefault(a => a.Name.Equals("content", Comparison));
 			if (twoHundredContentResponse.Value.ValueKind == JsonValueKind.Undefined)
 			{
 				return;
 			}
+			// this condition is for referenced objects as return types
 			var responseObject = twoHundredContentResponse
 						.Value.EnumerateObject()
 						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
@@ -130,15 +133,26 @@ namespace Business.Engines
 						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
 						.Value.EnumerateObject()
 						.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
-			if (responseObject.Value.ValueKind == JsonValueKind.Undefined)
+			if (responseObject.Value.ValueKind != JsonValueKind.Undefined)
 			{
-				return;
+				var responseObjectString = responseObject.Value.ToString();
+				if (!string.IsNullOrEmpty(responseObjectString))
+				{
+					var responseObjectName = responseObjectString.Split('/').Last();
+					verb.ResponseObject = models.FirstOrDefault(a => a.Name.Value.Equals(responseObjectName, Comparison));
+				}
 			}
-			var responseObjectString = responseObject.Value.ToString();
-			if (!string.IsNullOrEmpty(responseObjectString))
+			else
 			{
-				var responseObjectName = responseObjectString.Split('/').Last();
-				verb.ResponseObject = models.FirstOrDefault(a => a.Name.Value.Equals(responseObjectName, Comparison));
+				// this condition is for simple types
+				var underlyingType = twoHundredContentResponse
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
+						.Value.EnumerateObject()
+						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
+						.Value.EnumerateObject();
+				var openApiType = GetOpenApiType(underlyingType);
+				verb.ResponseType = TypeFactory.Create(openApiType, context.TypeConfiguration);
 			}
 		}
 

@@ -33,7 +33,8 @@ namespace {{Namespace}}
         {{#if RequestObjectIsEmpty ~}}
         
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        {{#if ResponseTypeIsEmpty}}
+        public async Task<OperationResult> {{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
@@ -51,7 +52,7 @@ namespace {{Namespace}}
                     var status = (int)response.StatusCode;
                     if (response.IsSuccessStatusCode)
 				    {
-					    return OperationResult.Ok();
+					    return OperationResult.Ok(result);
 				    }
                     else 
                     {
@@ -67,7 +68,44 @@ namespace {{Namespace}}
             }            
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        public async Task<OperationResult<{{ResponseType}}>> {{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
+        {
+            var urlBuilder = GetUrl("{{../Path}}");
+            urlBuilder.Append("?");
+            {{#Parameters}}
+            urlBuilder.Append("{{Name.Value}}=");
+            urlBuilder.Append({{Name.LowerCamelCase}}.ToString());
+            {{#unless @last}}urlBuilder.Append("&");{{/unless}}
+            {{/Parameters}}
+            var url = urlBuilder.ToString();
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+				    var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                    var status = (int)response.StatusCode;
+                    if (response.IsSuccessStatusCode)
+				    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{ResponseType}}>(content, _options);
+					    return OperationResult.Ok();
+				    }
+                    else 
+                    {
+                        return OperationResult.Fail($"Error - Status {status}");
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail(message);
+            }            
+        }
+        {{/if ~}}        
+        {{else}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}})
         {
             var urlBuilder = GetUrl("{{../Path}}");
             urlBuilder.Append("?");
@@ -116,7 +154,8 @@ namespace {{Namespace}}
         {{else ~}}
 
         {{#if ResponseObjectIsEmpty}}
-        public async Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {{#if ResponseTypeIsEmpty}}
+        public async Task<OperationResult> {{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
         {
             var url = GetUrl("{{../Path}}").ToString().ToLower();
             try
@@ -144,7 +183,38 @@ namespace {{Namespace}}
             }
         }
         {{else}}
-        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        public async Task<OperationResult<{{ResponseType}}>> {{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
+        {
+            var url = GetUrl("{{../Path}}").ToString().ToLower();
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("{{Name.UpperCase}}"), new Uri(url, UriKind.RelativeOrAbsolute)))
+			    {
+                    var body = JsonSerializer.Serialize({{RequestObject.Name.LowerCamelCase}}, _options);
+				    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+				    var response = await _httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+				    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<{{../Name.PascalCase}}>(content, _options);
+					    return OperationResult.Ok();
+				    }
+                    else
+                    {
+					    return OperationResult.Fail();
+                    }
+			    }
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error - {{Name.PascalCase}}.{{Name.PascalCase}}{{../Name.PascalCase}}Async - {ex.Message}";
+                _logger.LogError(message);
+                return OperationResult.Fail(message);
+            }
+        }
+        {{/if ~}}
+        {{else}}
+        public async Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}})
         {
             var url = GetUrl("{{../Path}}").ToString().ToLower();
             try

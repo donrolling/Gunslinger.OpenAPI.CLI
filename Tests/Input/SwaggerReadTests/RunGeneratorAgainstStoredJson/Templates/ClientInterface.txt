@@ -6,18 +6,26 @@ namespace {{Namespace}}
 {
     public interface {{Name.PascalCase}}
     {
-        {{#Data ~}}        
+        {{#Data ~}}
         {{#Routes ~}}
         {{#Verbs ~}}
-        {{#if RequestObjectIsEmpty ~}}        
+        {{#if RequestObjectIsEmpty ~}}
         {{#if ResponseObjectIsEmpty}}
-        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
+        {{#if ResponseTypeIsEmpty}}
+        Task<OperationResult> {{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
+        {{else}}
+        Task<OperationResult<{{ResponseType}}>> {{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
+        {{/if ~}}
         {{else}}
         Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{#Parameters}}{{{Type}}} {{Name.LowerCamelCase}}{{#unless @last}}, {{/unless}}{{/Parameters}});
         {{/if ~}}
         {{else ~}}
         {{#if ResponseObjectIsEmpty}}
-        Task<OperationResult> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        {{#if ResponseTypeIsEmpty}}
+        Task<OperationResult> {{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        {{else}}
+        Task<OperationResult<{{ResponseType}}>> {{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
+        {{/if ~}}
         {{else}}
         Task<OperationResult<{{ResponseObject.Name.PascalCase}}>> {{Name.PascalCase}}{{../Name.PascalCase}}Async({{RequestObject.Name.PascalCase}} {{RequestObject.Name.LowerCamelCase}});
         {{/if ~}}
