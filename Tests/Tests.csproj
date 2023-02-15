@@ -38,6 +38,12 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Input\SwaggerReadTests\LocalAPITest\gunslinger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Input\SwaggerReadTests\LocalAPITest\swagger.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="Input\SwaggerReadTests\OutputTest\gunslinger.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -66,4 +72,6 @@
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<ProjectExtensions><VisualStudio><UserProperties input_4swaggerreadtests_4localapitest_4swagger_1json__JsonSchema="https://json.schemastore.org/openapi.json" /></VisualStudio></ProjectExtensions>
 </Project>

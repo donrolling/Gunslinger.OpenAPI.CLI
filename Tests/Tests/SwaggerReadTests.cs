@@ -17,6 +17,13 @@ namespace Tests.Tests
 		}
 
 		[TestMethod]
+		public async Task LocalAPITest()
+		{
+			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		[TestMethod]
 		public async Task RunGeneratorAgainstStoredJson()
 		{
 			var result = await RunGeneratorAsync(this, TestContext, "gunslinger.json");

@@ -1,0 +1,154 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "Enterprise.API.Banking",
+		"version": "1.0"
+	},
+	"paths": {
+		"/api/Card/InstantFundingEligibility": {
+			"post": {
+				"tags": [
+					"Card"
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RulesModel"
+							}
+						},
+						"text/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RulesModel"
+							}
+						},
+						"application/*+json": {
+							"schema": {
+								"$ref": "#/components/schemas/RulesModel"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Card/GenerateCardAttributes": {
+			"post": {
+				"tags": [
+					"Card"
+				],
+				"parameters": [
+					{
+						"name": "token",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Card/GetSavedCardAttributes": {
+			"get": {
+				"tags": [
+					"Card"
+				],
+				"parameters": [
+					{
+						"name": "token",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"BankCardAttributesBaseModel": {
+				"type": "object",
+				"properties": {
+					"attributes": {
+						"type": "string",
+						"nullable": true
+					},
+					"bin": {
+						"type": "string",
+						"nullable": true
+					},
+					"cardBrand": {
+						"type": "string",
+						"nullable": true
+					},
+					"last4": {
+						"type": "string",
+						"nullable": true
+					},
+					"canDisburse": {
+						"type": "string",
+						"nullable": true
+					},
+					"cardValid": {
+						"type": "string",
+						"nullable": true
+					},
+					"status": {
+						"type": "string",
+						"nullable": true
+					},
+					"addressValidationResult": {
+						"type": "boolean"
+					}
+				},
+				"additionalProperties": false
+			},
+			"RulesModel": {
+				"type": "object",
+				"properties": {
+					"token": {
+						"type": "string",
+						"nullable": true
+					},
+					"campaignTypeId": {
+						"type": "integer",
+						"format": "int32"
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	}
+}

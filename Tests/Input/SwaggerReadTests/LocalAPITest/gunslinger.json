@@ -1,0 +1,66 @@
+{
+	"OutputDirectory": "..\\..\\..\\..\\OutputTests\\Client\\",
+	"TemplateDirectory": "Templates",
+	"DataProviders": [
+		{
+			"Name": "Swagger",
+			"Location": "Input\\SwaggerReadTests\\LocalAPITest\\swagger.json"
+		}
+	],
+	"ReservedNames": [ "event" ],
+	"Templates": [
+		{
+			"Type": "Setup",
+			"Name": "TestAPIClient",
+			"Namespace": "OutputTests.Client",
+			"InputRelativePath": "Client.txt",
+			"OutputRelativePath": "TestAPIClient.cs",
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"Domain",
+				"Microsoft.Extensions.Logging",
+				"OutputTests.Client.Models",
+				"System.Text",
+				"System.Text.Json"
+			]
+		},
+		{
+			"Type": "Setup",
+			"Name": "ITestAPIClient",
+			"Namespace": "OutputTests.Client",
+			"InputRelativePath": "ClientInterface.txt",
+			"OutputRelativePath": "ITestAPIClient.cs",
+			"DeleteAllItemsInOutputDirectory": false,
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"Domain",
+				"OutputTests.Client.Models"
+			]
+		},
+		{
+			"Type": "Setup",
+			"Name": "TestAPIClient",
+			"Namespace": "OutputTests.Client.Configuration",
+			"InputRelativePath": "ConfigurationHelper.txt",
+			"OutputRelativePath": "Configuration\\ConfigurationHelper.cs",
+			"DeleteAllItemsInOutputDirectory": false,
+			"DataProviderName": "Swagger",
+			"Imports": [
+				"Microsoft.Extensions.DependencyInjection",
+				"Microsoft.Extensions.Logging",
+				"System.Net.Http.Headers"
+			]
+		},
+		{
+			"Type": "Model",
+			"Name": "Models",
+			"Namespace": "OutputTests.Client.Models",
+			"InputRelativePath": "Model.txt",
+			"OutputRelativePath": "Models\\{entityName}.cs",
+			"ExcludeTheseTypes": [ "OperationResult" ],
+			"DataProviderName": "Swagger",
+			"Imports": [
+			]
+		}
+	]
+}
