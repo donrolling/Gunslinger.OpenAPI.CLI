@@ -31,7 +31,24 @@
 				},
 				"responses": {
 					"200": {
-						"description": "Success"
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							}
+						}
 					}
 				}
 			}
@@ -52,7 +69,24 @@
 				],
 				"responses": {
 					"200": {
-						"description": "Success"
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OperationResult"
+								}
+							}
+						}
 					}
 				}
 			}
@@ -77,17 +111,17 @@
 						"content": {
 							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+									"$ref": "#/components/schemas/BankCardAttributesBaseModelOperationResult"
 								}
 							},
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+									"$ref": "#/components/schemas/BankCardAttributesBaseModelOperationResult"
 								}
 							},
 							"text/json": {
 								"schema": {
-									"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+									"$ref": "#/components/schemas/BankCardAttributesBaseModelOperationResult"
 								}
 							}
 						}
@@ -130,6 +164,43 @@
 						"nullable": true
 					},
 					"addressValidationResult": {
+						"type": "boolean"
+					}
+				},
+				"additionalProperties": false
+			},
+			"BankCardAttributesBaseModelOperationResult": {
+				"type": "object",
+				"properties": {
+					"failed": {
+						"type": "boolean",
+						"readOnly": true
+					},
+					"message": {
+						"type": "string",
+						"nullable": true
+					},
+					"success": {
+						"type": "boolean"
+					},
+					"result": {
+						"$ref": "#/components/schemas/BankCardAttributesBaseModel"
+					}
+				},
+				"additionalProperties": false
+			},
+			"OperationResult": {
+				"type": "object",
+				"properties": {
+					"failed": {
+						"type": "boolean",
+						"readOnly": true
+					},
+					"message": {
+						"type": "string",
+						"nullable": true
+					},
+					"success": {
 						"type": "boolean"
 					}
 				},

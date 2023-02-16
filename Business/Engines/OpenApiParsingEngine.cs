@@ -33,7 +33,7 @@ namespace Business.Engines
 			return OperationResult.Ok(new OpenApiResult { Models = models, Routes = paths });
 		}
 
-		private static void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context)
+		private static void AddParameters(Verb verb, JsonProperty jsonParameters, GenerationContext context, List<Model> models)
 		{
 			// route or querystring parameters
 			foreach (var jsonParameter in jsonParameters.Value.EnumerateArray())
@@ -43,7 +43,7 @@ namespace Business.Engines
 				var parameterName = parameter.First(a => a.Name.Equals("name", Comparison)).Value.ToString();
 				property.Name = NameFactory.Create(parameterName);
 				var propertyProperties = parameter.First(a => a.Name.Equals("schema", Comparison)).Value.EnumerateObject();
-				var openApiType = GetOpenApiType(propertyProperties);
+				var openApiType = GetOpenApiType(propertyProperties, models);
 				property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
 				var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
 				property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
@@ -116,26 +116,26 @@ namespace Business.Engines
 						.Value.EnumerateObject()
 						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
 						.Value.EnumerateObject();
-				var openApiType = GetOpenApiType(underlyingType);
+				var openApiType = GetOpenApiType(underlyingType, models);
 				verb.ResponseType = TypeFactory.Create(openApiType, context.TypeConfiguration);
 			}
 		}
 
 		private static List<Model> GetModels(JsonDocument document, GenerationContext context)
 		{
-			var result = new List<Model>();
+			var models = new List<Model>();
 			var componentsNode = document.RootElement.EnumerateObject()
 								.FirstOrDefault(a => a.Name.Equals("components", Comparison));
 			if (componentsNode.Value.ValueKind == JsonValueKind.Undefined)
 			{
-				return result;
+				return models;
 			}
 			var schemaNode = componentsNode
 								.Value.EnumerateObject()
 								.FirstOrDefault(a => a.Name.Equals("schemas", Comparison));
 			if (schemaNode.Value.ValueKind == JsonValueKind.Undefined)
 			{
-				return result;
+				return models;
 			}
 			foreach (var component in schemaNode.Value.EnumerateObject())
 			{
@@ -149,26 +149,37 @@ namespace Business.Engines
 					var property = new Property();
 					property.Name = NameFactory.Create(jsonProperty.Name);
 					var propertyProperties = jsonProperty.Value.EnumerateObject();
-					var openApiType = GetOpenApiType(propertyProperties);
+					var openApiType = GetOpenApiType(propertyProperties, models);
 					property.Type = TypeFactory.Create(openApiType, context.TypeConfiguration);
 					var isNullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
 					property.IsNullable = isNullable.Equals("true", Comparison) ? true : false;
 					model.Properties.Add(property);
 				}
-				result.Add(model);
+				models.Add(model);
 			}
-			return result;
+			return models;
 		}
 
-		private static OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties)
+		private static OpenApiType GetOpenApiType(JsonElement.ObjectEnumerator propertyProperties, List<Model> models)
 		{
-			var type = propertyProperties.First(a => a.Name.Equals("type", Comparison)).Value.ToString();
-			// this won't explode if it is null
+			var type = propertyProperties.FirstOrDefault(a => a.Name.Equals("type", Comparison));
+			var typeString = "";
+			if (type.Value.ValueKind == JsonValueKind.Undefined)
+			{
+				type = propertyProperties.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
+				var requestObjectName = type.Value.ToString().Split('/').Last();
+				typeString = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison)).Name.Value;
+			}
+			else
+			{
+				typeString = type.Value.ToString();
+			}
+			// these won't explode when null
 			var typeFormat = propertyProperties.FirstOrDefault(a => a.Name.Equals("format", Comparison)).Value.ToString();
 			var nullable = propertyProperties.FirstOrDefault(a => a.Name.Equals("nullable", Comparison)).Value.ToString();
 			return new OpenApiType
 			{
-				Type = type,
+				Type = typeString,
 				Format = typeFormat,
 				Nullable = string.IsNullOrWhiteSpace(nullable)
 					? false
@@ -200,7 +211,7 @@ namespace Business.Engines
 					}
 					else
 					{
-						AddParameters(verb, jsonParameters, context);
+						AddParameters(verb, jsonParameters, context, models);
 					}
 					AddResponseObjects(jsonVerb, verb, models, context);
 					route.Verbs.Add(verb);
