@@ -58,19 +58,32 @@ namespace Business.Engines
 			{
 				return;
 			}
-			var requestObject = requestBody.Value.EnumerateObject()
-						.First(a => a.Name.Equals("content", Comparison))
-						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
-						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
-						.Value.EnumerateObject()
-						.FirstOrDefault(a => a.Name.Equals("$ref", Comparison))
-						.Value.ToString();
-			if (!string.IsNullOrEmpty(requestObject))
+			try
 			{
-				var requestObjectName = requestObject.Split('/').Last();
+				var requestObject = requestBody.Value.EnumerateObject();
+				if (requestObject.Current.Value.ValueKind != JsonValueKind.Undefined)
+				{
+					return;
+				}
+				var content = requestObject.FirstOrDefault(a => a.Name.Equals("content", Comparison));
+				if (content.Value.ValueKind != JsonValueKind.Undefined)
+				{
+					return;
+				}	
+				var xs = content.Value.EnumerateObject()
+					.FirstOrDefault(a => a.Name.Equals("application/json", Comparison))
+					.Value.EnumerateObject()
+					.FirstOrDefault(a => a.Name.Equals("schema", Comparison))
+					.Value.EnumerateObject()
+					.FirstOrDefault(a => a.Name.Equals("$ref", Comparison))
+					.Value.ToString();
+				
+				var requestObjectName = xs.Split('/').Last();
 				verb.RequestObject = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison));
+			}
+			catch (Exception e)
+			{
+				throw;
 			}
 		}
 
@@ -142,7 +155,15 @@ namespace Business.Engines
 				var model = new Model();
 				model.Name = NameFactory.Create(component.Name);
 				var modelProps = component.Value.EnumerateObject();
-				model.TypeName = modelProps.First(a => a.Name.Equals("type", Comparison)).Name;
+				var x = modelProps.FirstOrDefault(a => a.Name.Equals("type", Comparison));
+				if (x.Value.ValueKind != JsonValueKind.Undefined)
+				{
+					model.TypeName = x.Name;
+				}
+				if (!modelProps.Any(a => a.Name.Equals("properties", Comparison)))
+				{
+					continue;
+				}
 				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
 				foreach (var jsonProperty in properties.EnumerateObject())
 				{
@@ -168,7 +189,11 @@ namespace Business.Engines
 			{
 				type = propertyProperties.FirstOrDefault(a => a.Name.Equals("$ref", Comparison));
 				var requestObjectName = type.Value.ToString().Split('/').Last();
-				typeString = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison)).Name.Value;
+				var x = models.FirstOrDefault(a => a.Name.Value.Equals(requestObjectName, Comparison));
+				if (x != null)
+				{
+					typeString = x.Name.Value;
+				}
 			}
 			else
 			{
