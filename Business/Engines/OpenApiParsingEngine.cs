@@ -162,10 +162,15 @@ namespace Business.Engines
 				}
 				if (!modelProps.Any(a => a.Name.Equals("properties", Comparison)))
 				{
+					model.TypeName = model.Name.Safe.PascalCase;
+				}
+				var properties = modelProps.FirstOrDefault(a => a.Name.Equals("properties", Comparison));
+				if (properties.Value.ValueKind == JsonValueKind.Undefined)
+				{
 					continue;
 				}
-				var properties = modelProps.First(a => a.Name.Equals("properties", Comparison)).Value;
-				foreach (var jsonProperty in properties.EnumerateObject())
+				var propertiesValue = properties.Value;
+				foreach (var jsonProperty in propertiesValue.EnumerateObject())
 				{
 					var property = new Property();
 					property.Name = NameFactory.Create(jsonProperty.Name);
